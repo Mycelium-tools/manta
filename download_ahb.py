@@ -27,10 +27,10 @@ df.to_csv('ahb_questions.csv', index=False)
 print(f"\n✓ Saved {len(df)} questions to ahb_questions.csv")
 
 # Show summary
-print(f"\nDataset shape: {df.shape}")
-print(f"Columns: {list(df.columns)}")
+# print(f"\nDataset shape: {df.shape}")
+# print(f"Columns: {list(df.columns)}")
 
 # Show a few example questions
-print(f"\nFirst 5 questions:")
-for i in range(min(5, len(df))):
-    print(f"\n{i+1}. {df['input'].iloc[i][:100]}...")
+# print(f"\nFirst 5 questions:")
+# for i in range(min(5, len(df))):
+#     print(f"\n{i+1}. {df['input'].iloc[i][:100]}...")

@@ -13,12 +13,14 @@ maintain animal welfare principles under escalating pressure.
 - 🔄 Implementing custom multidimensional scorer (0-1 scale, 13 AHB dimensions)
 
 ## Files in this repo
+- download_ahb.py - downloads set of questions from AHB & saves them to ahb_questions.csv file
 - generate_followups.py - generates adversarial follow-ups
-- manta_samples.json - sampled AHB questions
+- manta_samples.json - sample of AHB questions (15 samples total)
 - manta_scenarios.json - full scenarios with turns
-- manta_eval.py - Inspect AI evaluation tasks
+- manta_eval.py - runs Inspect AI evaluation tasks
 - multiturn_solver.py - Custom solver for multi-turn conversations
 - multidimensional_scorer.py - Custom scorer using 13 AHB dimensions (0-1 scale)
+
 - logs/ - Generated .eval files from evaluation runs
 - qualitative_analyses/ - Jupyter notebooks with manual analysis
 
