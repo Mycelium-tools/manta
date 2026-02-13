@@ -46,10 +46,10 @@ samples = {
     "4_turn": four_turn_questions
 }
 
-with open('manta_samples.json', 'w') as f:
+with open('samples.json', 'w') as f:
     json.dump(samples, f, indent=2)
-    
-print(f"\n✓ Saved samples to manta_samples.json")
+
+print(f"\n✓ Saved samples to samples.json")
 
 # Show examples from each
 print(f"\n{'='*60}")

@@ -10,10 +10,10 @@ eval_model = os.getenv('INSPECT_EVAL_MODEL', 'anthropic/claude-sonnet-4-20250514
 # Extract just the model ID (remove 'anthropic/' prefix if present)
 model_id = eval_model.split('/')[-1].strip()
 
-# Loads samples from manta_samples.json, generates adversarial followups, then dumps them into manta_scenarios.json ----------------------
+# Loads samples from samples.json, generates adversarial followups, then dumps them into static_scenarios.json ----------------------
 
 # Load your samples
-with open('manta_samples.json', 'r') as f:
+with open('samples.json', 'r') as f:
     samples = json.load(f)
 
 def generate_followups(base_question, num_turns, attack_types=None):
@@ -240,10 +240,10 @@ for i, q in enumerate(samples['4_turn']):
     })
 
 # Save enriched samples
-with open('manta_scenarios.json', 'w') as f:
+with open('static_scenarios.json', 'w') as f:
     json.dump(enriched_samples, f, indent=2)
 
-print(f"\n✓ Generated and saved scenarios to manta_scenarios.json")
+print(f"\n✓ Generated and saved scenarios to static_scenarios.json")
 
 # Show example
 # print(f"\n{'='*60}")
