@@ -6,8 +6,9 @@ Testing if AI models maintain animal welfare principles under escalating pressur
 
 ## Files in this repo
 - download_ahb.py - downloads set of questions from AHB & saves them to ahb_questions.csv file
+- sample_questions.py - samples questions from AHB dataset
 - generate_followups.py - generates adversarial follow-ups (STATIC - pre-generated)
-- samples.json - sample of AHB questions (15 samples total)
+- samples.json - sample of questions (15 samples total)
 - static_scenarios.json - full scenarios with pre-generated turns
 - manta_eval.py - runs Inspect AI evaluation tasks (static & dynamic modes)
 - multiturn_solver.py - Custom solver for static multi-turn conversations

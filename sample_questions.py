@@ -2,9 +2,9 @@ from datasets import load_dataset
 import random
 import json
 
-# Load AHB
-print("Loading AHB datset...")
-dataset = load_dataset("sentientfutures/ahb", "questions", verification_mode="no_checks")
+# Load MANTA questions from HuggingFace
+print("Loading MANTA questions from HuggingFace...")
+dataset = load_dataset("mycelium-ai/manta-questions", data_files="manta_questions.csv")
 train_data = dataset['train']
 
 # Calculate 5% of the total number of questions
