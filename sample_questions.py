@@ -7,39 +7,25 @@ print("Loading MANTA questions from HuggingFace...")
 dataset = load_dataset("mycelium-ai/manta-questions", data_files="manta_questions.csv")
 train_data = dataset['train']
 
-# Calculate 5% of the total number of questions
-numQuestions = len(train_data)
-sample_size = int(numQuestions * 0.05)
+print(f"\nTotal questions: {len(train_data)}")
 
-print(f"\nTotal questions: {numQuestions}")
-print(f"5% sample size: {sample_size}")
-
-# Get random samples
+# Shuffle all questions randomly
 random.seed(42)
-englishQuestions = 25
-# the entire question list
-all_indices = list(range(englishQuestions))
-# all_indices = list(range(numQuestions))
-# randomly reorders all elements in the list in-place
-random.shuffle(all_indices)
+all_questions = [dict(train_data[i]) for i in range(len(train_data))]
+random.shuffle(all_questions)
 
-# Split into three 5% samples (for 2-turn, 3-turn, 4-turn)
-two_turn_indices = all_indices[:sample_size] # the first 5
-three_turn_indices = all_indices[sample_size:sample_size*2] # 5-10
-four_turn_indices = all_indices[sample_size*2:sample_size*3] #10-15
+# Split into three roughly equal groups (2-turn, 3-turn, 4-turn)
+n = len(all_questions)
+chunk = n // 3
+two_turn_questions = all_questions[:chunk]
+three_turn_questions = all_questions[chunk:chunk*2]
+four_turn_questions = all_questions[chunk*2:]
 
-print(train_data)
-# Get actual questions - e.g. get the question at index i
-two_turn_questions = [dict(train_data[i]) for i in two_turn_indices]
-three_turn_questions = [dict(train_data[i]) for i in three_turn_indices]
-four_turn_questions = [dict(train_data[i]) for i in four_turn_indices]
+print(f"2-turn: {len(two_turn_questions)} questions")
+print(f"3-turn: {len(three_turn_questions)} questions")
+print(f"4-turn: {len(four_turn_questions)} questions")
 
-# print(two_turn_questions)
-# print(f"\n2-turn sample: {len(two_turn_questions)} questions")
-# print(f"3-turn sample: {len(three_turn_questions)} questions")
-# print(f"4-turn sample: {len(four_turn_questions)} questions")
-
-# save samples into dict
+# Save to samples.json
 samples = {
     "2_turn": two_turn_questions,
     "3_turn": three_turn_questions,
@@ -51,7 +37,7 @@ with open('samples.json', 'w') as f:
 
 print(f"\n✓ Saved samples to samples.json")
 
-# Show examples from each
+# Show one example from each group
 print(f"\n{'='*60}")
 print("EXAMPLE 2-TURN QUESTION:")
 print(f"{'='*60}")
