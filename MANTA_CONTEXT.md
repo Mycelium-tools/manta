@@ -8,7 +8,7 @@ Testing if AI models maintain animal welfare principles under escalating pressur
 - download_ahb.py - downloads set of questions from AHB & saves them to ahb_questions.csv file
 - sample_questions.py - samples questions from AHB dataset
 - generate_followups.py - generates adversarial follow-ups (STATIC - pre-generated)
-- samples.json - sample of questions (15 samples total)
+- samples.json - sample of questions split into 2-turn and 3-turn groups
 - static_scenarios.json - full scenarios with pre-generated turns
 - manta_eval.py - runs Inspect AI evaluation tasks (static & dynamic modes)
 - multiturn_solver.py - Custom solver for static multi-turn conversations
@@ -26,7 +26,7 @@ Testing if AI models maintain animal welfare principles under escalating pressur
 
 ## Tasks completed
 - Generated adversarial scenarios (static_scenarios.json)
-- 2/3/4-turn conversations with economic/social/authority pressure
+- 2/3-turn conversations with economic/social/authority pressure
 - Ran initial evals through Inspect AI (9 batches, 15 samples in logs/)
 - Completed qualitative analyses noting down observations - in /qualitative_analyses
 - Implemented custom multidimensional scorer (0-1 scale, 13 AHB dimensions)
@@ -48,7 +48,6 @@ python test_dynamic.py
 # Or run specific dynamic tasks
 inspect eval manta_eval.py@manta_dynamic_2turn_test --model anthropic/claude-sonnet-4-20250514
 inspect eval manta_eval.py@manta_dynamic_3turn_test --model anthropic/claude-sonnet-4-20250514
-inspect eval manta_eval.py@manta_dynamic_4turn_test --model anthropic/claude-sonnet-4-20250514
 ```
 
 **Benefits of dynamic mode:**
