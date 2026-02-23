@@ -1,5 +1,4 @@
 from datasets import load_dataset
-import random
 import json
 
 # Load MANTA questions from HuggingFace
@@ -9,12 +8,9 @@ train_data = dataset['train']
 
 print(f"\nTotal questions: {len(train_data)}")
 
-# Shuffle all questions randomly
-random.seed(42)
 all_questions = [dict(train_data[i]) for i in range(len(train_data))]
-random.shuffle(all_questions)
 
-# Split into two roughly equal groups (2-turn, 3-turn)
+# Split into two roughly equal groups (2-turn, 3-turn) in order
 n = len(all_questions)
 chunk = n // 2
 two_turn_questions = all_questions[:chunk]
