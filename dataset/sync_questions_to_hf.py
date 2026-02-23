@@ -12,7 +12,7 @@ Usage:
 
 This will:
 1. Download latest questions from Google Sheets
-2. Save to manta_questions.csv
+2. Save to dataset/manta_questions.csv
 3. Upload to HuggingFace
 """
 
@@ -27,7 +27,8 @@ load_dotenv()
 
 # Configuration
 GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR_fCnBetwXyIvAVaBJ1Surc6rdzoZm-eR9fdGWni9KvrwetKTpJRfSkyVF7PUfxBNGeI-dGEZp3P7u/pub?output=csv"
-LOCAL_CSV = "manta_questions.csv"
+LOCAL_CSV = "dataset/manta_questions.csv"
+HF_CSV = "manta_questions.csv"  # filename as stored in the HF repo
 HF_DATASET = "mycelium-ai/manta-questions"
 
 def download_from_google_sheets():
@@ -91,7 +92,7 @@ def upload_to_huggingface():
         # Upload the CSV
         upload_file(
             path_or_fileobj=LOCAL_CSV,
-            path_in_repo=LOCAL_CSV,
+            path_in_repo=HF_CSV,
             repo_id=HF_DATASET,
             repo_type="dataset",
             commit_message="Sync from Google Sheets"
@@ -101,7 +102,7 @@ def upload_to_huggingface():
 
         # Verify
         print(f"🔍 Verifying...")
-        dataset = load_dataset(HF_DATASET, data_files=LOCAL_CSV, split="train")
+        dataset = load_dataset(HF_DATASET, data_files=HF_CSV, split="train")
         print(f"✅ Verified: {len(dataset)} questions loaded")
         return True
 
