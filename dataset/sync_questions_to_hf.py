@@ -17,6 +17,7 @@ This will:
 """
 
 import os
+import subprocess
 import requests
 from datasets import load_dataset
 from huggingface_hub import create_repo, upload_file, login
@@ -130,8 +131,15 @@ def main():
     print(f"\n📊 Your questions are now:")
     print(f"   • Local: {LOCAL_CSV}")
     print(f"   • HuggingFace: https://huggingface.co/datasets/{HF_DATASET}")
+
+    # Step 3: Regenerate samples.json
+    print("\n" + "=" * 60)
+    print("Regenerating samples.json...")
+    print("=" * 60)
+    subprocess.run(["python3", "sample_questions.py"], check=True)
+
     print(f"\nNext time you update your Google Sheet, just run:")
-    print(f"   python sync_questions_to_hf.py")
+    print(f"   python dataset/sync_questions_to_hf.py")
 
 if __name__ == "__main__":
     main()
