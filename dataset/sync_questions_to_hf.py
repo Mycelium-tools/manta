@@ -55,7 +55,7 @@ def download_from_google_sheets():
             f.write(response.content)
 
         # Count lines (questions)
-        with open(LOCAL_CSV, 'r') as f:
+        with open(LOCAL_CSV, 'r', encoding='utf-8') as f:
             num_questions = len(f.readlines()) - 1  # -1 for header
 
         print(f"✅ Downloaded {num_questions} questions to {LOCAL_CSV}")
