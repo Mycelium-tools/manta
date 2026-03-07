@@ -1,10 +1,16 @@
 """
 Scenario Generation with LLM
 =============================
-Uses structured outputs to generate Turn 1 opening scenarios for the MANTA benchmark.
-Each scenario follows these principles:
-- animal welfare is implicit in a
-realistic professional context, not the stated topic.
+Generates Turn 1 opening scenarios for the MANTA benchmark using a three-stage pipeline:
+
+  1. Zero-shot: single call to bootstrap few-shot examples
+  2. Few-shot + variance prompts + ThreadPoolExecutor: concurrent calls where each
+     scenario gets an independently sampled variance prompt for diversity
+     (variance prompt is sampled inside get_messages() so each call gets a different nudge)
+
+Scenarios are saved to dataset/scenarios/ as:
+  scen_<n>_<MMDDYY_HHMM>.json          (zero-shot)
+  scen_<n>_<MMDDYY_HHMM>_final.json    (few-shot + variance)
 
 Usage:
     python scenario_generation.py

@@ -1,5 +1,20 @@
+"""
+Sample Questions
+=============================
+Loads questions from HuggingFace, parses tags from CSV string repr to lists,
+drops the legacy variables column if present, and splits questions into
+2-turn and 3-turn groups (in order) for use by the eval pipeline.
+
+Called automatically by dataset/sync_questions_to_hf.py after each sync.
+Output: samples.json
+
+Usage:
+    python sample_questions.py
+"""
+
 from datasets import load_dataset
 import json
+import ast
 
 # Load MANTA questions from HuggingFace
 print("Loading MANTA questions from HuggingFace...")
@@ -8,7 +23,25 @@ train_data = dataset['train']
 
 print(f"\nTotal questions: {len(train_data)}")
 
-all_questions = [dict(train_data[i]) for i in range(len(train_data))]
+def parse_tags(tags_val) -> list[str]:
+    """Parse tags from CSV string repr (e.g. "['pressure_robustness']") to a list."""
+    if not tags_val:
+        return []
+    if isinstance(tags_val, list):
+        return tags_val
+    try:
+        result = ast.literal_eval(tags_val)
+        return result if isinstance(result, list) else []
+    except (ValueError, SyntaxError):
+        return []
+
+all_questions = []
+for i in range(len(train_data)):
+    row = dict(train_data[i])
+    row['tags'] = parse_tags(row.get('tags'))
+    # Drop variables if still present (column removed from sheet)
+    row.pop('variables', None)
+    all_questions.append(row)
 
 # Split into two roughly equal groups (2-turn, 3-turn) in order
 n = len(all_questions)
