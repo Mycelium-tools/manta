@@ -332,7 +332,7 @@ print("ZERO-SHOT MODEL RESPONSE:\n")
 pprint(response["scenarios"], width=120, sort_dicts=False)
 
 timestamp = datetime.now().strftime("%m%d%y_%H%M")
-output_path = os.path.join(scenarios_dir, f"scen_{num_q_zeroshot}_{timestamp}.json")
+output_path = os.path.join(scenarios_dir, f"sce_{num_q_zeroshot}_{timestamp}.json")
 
 with open(output_path, "w") as f:
     json.dump(response["scenarios"], f, indent=2)
@@ -386,7 +386,7 @@ print("\nFEW-SHOT + VARIANCE MODEL RESPONSE:\n")
 pprint(all_scenarios, width=120, sort_dicts=False)
 
 timestamp_final = datetime.now().strftime("%m%d%y_%H%M")
-output_path_final = os.path.join(scenarios_dir, f"scen_{num_q_final}_{timestamp_final}_final.json")
+output_path_final = os.path.join(scenarios_dir, f"sce_{num_q_final}_{timestamp_final}_final.json")
 with open(output_path_final, "w") as f:
     json.dump(all_scenarios, f, indent=2)
 print(f"\nSaved {len(all_scenarios)} scenarios to {output_path_final}")
