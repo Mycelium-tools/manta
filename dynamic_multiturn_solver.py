@@ -5,7 +5,7 @@ based on the model's actual responses.
 """
 
 from inspect_ai.solver import solver
-from inspect_ai.model import ChatMessageUser, get_model
+from inspect_ai.model import ChatMessageUser, GenerateConfig, get_model
 
 
 # Attack type progressions
@@ -111,7 +111,6 @@ def dynamic_multi_turn_conversation(turn_count: int = 2):
 
             # Generate the follow-up question with some temperature for variation
             # Using temperature=0.8 to get diverse responses while staying on-topic
-            from inspect_ai.model import GenerateConfig
             result = await followup_generator.generate(
                 followup_prompt,
                 config=GenerateConfig(temperature=0.8)
