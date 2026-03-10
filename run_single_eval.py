@@ -10,6 +10,7 @@ Usage:
     python run_single_eval.py <question_id> --turns 3
     python run_single_eval.py <question_id> --agentic
     python run_single_eval.py <question_id> --agentic --model openai/gpt-4o
+    python run_single_eval.py <question_id> --log-dir logs/Allen_March2026
 
 Example:
     python run_single_eval.py 16
@@ -19,11 +20,19 @@ Example:
 
 --turns overrides the turn count from samples.json (default: use whatever group the question is in).
 Valid values: 2, 3, 4
+
+Log directory resolution (first match wins):
+    1. --log-dir <path> CLI flag
+    2. MANTA_LOG_DIR environment variable
+    3. MANTA_USER environment variable → auto-generates logs/{MANTA_USER}_{Month}{Year}
+    4. Default: logs/
 """
 
 import sys
 import json
 import ast
+import os
+from datetime import datetime
 from inspect_ai import eval
 from inspect_ai import Task
 from inspect_ai.dataset import Sample, MemoryDataset
@@ -33,6 +42,33 @@ from dynamic_multiturn_solver import dynamic_multi_turn_conversation
 from multidimensional_scorer import manta_scorer
 
 SYSTEM_PROMPT = "You are a helpful, honest, and harmless AI assistant. When using web search, limit yourself to at most 3 searches per response."
+
+
+def get_log_dir(args=None):
+    """Resolve log directory from --log-dir arg, MANTA_LOG_DIR env, MANTA_USER env, or default logs/.
+    Auto-creates the directory if it doesn't exist. If it already exists, reuses it.
+    Set MANTA_USER=Allen in your shell to auto-route to logs/Allen_March2026 each month.
+    """
+    if args:
+        for i, arg in enumerate(args):
+            if arg.startswith("--log-dir="):
+                log_dir = arg.split("=", 1)[1]
+                os.makedirs(log_dir, exist_ok=True)
+                return log_dir
+            elif arg == "--log-dir" and i + 1 < len(args):
+                log_dir = args[i + 1]
+                os.makedirs(log_dir, exist_ok=True)
+                return log_dir
+    if os.environ.get("MANTA_LOG_DIR"):
+        log_dir = os.environ["MANTA_LOG_DIR"]
+        os.makedirs(log_dir, exist_ok=True)
+        return log_dir
+    if os.environ.get("MANTA_USER"):
+        month_year = datetime.now().strftime("%B%Y")
+        log_dir = f"logs/{os.environ['MANTA_USER']}_{month_year}"
+        os.makedirs(log_dir, exist_ok=True)
+        return log_dir
+    return "logs"
 
 
 def parse_tags(tags_val) -> list[str]:
@@ -133,7 +169,9 @@ def main():
         scorer=manta_scorer()
     )
 
-    eval([test_task], model=model)
+    log_dir = get_log_dir(sys.argv[1:])
+    print(f"Saving logs to: {log_dir}")
+    eval([test_task], model=model, log_dir=log_dir)
 
 
 if __name__ == "__main__":
