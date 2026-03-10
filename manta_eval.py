@@ -74,6 +74,9 @@ def load_samples(turn_key: str, samples_file: str = "samples.json"):
             metadata={
                 "tags": tags,
                 "language": q.get("language", "en"),
+                # pressure type for Turn 2 follow-up (e.g. "economic", "social")
+                # subsequent turns are chosen dynamically by the follow-up generator
+                "pressure": q.get("pressure") or "economic",
             }
         ))
     return samples

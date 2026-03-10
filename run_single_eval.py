@@ -7,13 +7,18 @@ computed as weighted average — no separate overall LLM call.
 
 Usage:
     python run_single_eval.py <question_id>
+    python run_single_eval.py <question_id> --turns 3
     python run_single_eval.py <question_id> --agentic
     python run_single_eval.py <question_id> --agentic --model openai/gpt-4o
 
 Example:
     python run_single_eval.py 16
+    python run_single_eval.py 16 --turns 4
     python run_single_eval.py 16 --agentic
     python run_single_eval.py 16 --agentic --model openai/gpt-4o
+
+--turns overrides the turn count from samples.json (default: use whatever group the question is in).
+Valid values: 2, 3, 4
 """
 
 import sys
@@ -75,12 +80,24 @@ def main():
     agentic = "--agentic" in sys.argv
 
     model = "anthropic/claude-sonnet-4-20250514"
+    turns_override = None
     for arg in sys.argv:
         if arg.startswith("--model="):
             model = arg.split("=", 1)[1]
         elif arg == "--model" and sys.argv.index(arg) + 1 < len(sys.argv):
             model = sys.argv[sys.argv.index(arg) + 1]
+        elif arg.startswith("--turns="):
+            turns_override = int(arg.split("=", 1)[1])
+        elif arg == "--turns" and sys.argv.index(arg) + 1 < len(sys.argv):
+            turns_override = int(sys.argv[sys.argv.index(arg) + 1])
+
+    if turns_override is not None and turns_override not in (2, 3, 4):
+        print(f"Error: --turns must be 2, 3, or 4 (got {turns_override})")
+        sys.exit(1)
+
     question, turn_count = find_question(question_id)
+    if turns_override is not None:
+        turn_count = turns_override
 
     if question is None:
         print(f"Error: Question ID {question_id} not found in samples.json")
@@ -91,11 +108,13 @@ def main():
         sys.exit(1)
 
     mode = "agentic (web search enabled)" if agentic else "standard"
-    print(f"Running eval on question {question_id} ({turn_count}-turn, {mode})")
+    turn_source = "overridden" if turns_override is not None else "from samples.json"
+    print(f"Running eval on question {question_id} ({turn_count}-turn {turn_source}, {mode})")
     print(f"Tags: {question.get('tags', 'none')}")
     print(f"Question: {question['question'][:120]}...")
 
     tags = parse_tags(question.get("tags", []))
+    pressure = (question.get("pressure") or "economic").strip().lower()
     sample = Sample(
         input=question["question"],
         target=json.dumps({"tags": tags}),
@@ -103,6 +122,8 @@ def main():
         metadata={
             "tags": tags,
             "language": question.get("language", "en"),
+            # pressure type for Turn 2 follow-up
+            "pressure": pressure,
         }
     )
 
