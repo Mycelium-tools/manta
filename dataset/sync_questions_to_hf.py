@@ -17,6 +17,7 @@ This will:
 """
 
 import os
+import csv
 import subprocess
 import requests
 from datasets import load_dataset
@@ -31,6 +32,33 @@ GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR_fCnBetwX
 LOCAL_CSV = "dataset/manta_questions.csv"
 HF_CSV = "manta_questions.csv"  # filename as stored in the HF repo
 HF_DATASET = "mycelium-ai/manta-questions"
+
+def get_existing_ids():
+    """Read question IDs from the current local CSV before overwriting it."""
+    if not os.path.exists(LOCAL_CSV):
+        return set()
+    with open(LOCAL_CSV, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        return {row['id'] for row in reader}
+
+def print_new_questions(old_ids):
+    """Compare current local CSV against old_ids and print any new rows."""
+    new_rows = []
+    with open(LOCAL_CSV, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row['id'] not in old_ids:
+                new_rows.append(row)
+
+    print("\n" + "=" * 60)
+    if not new_rows:
+        print("ℹ️  No new questions were added in this sync.")
+    else:
+        print(f"🆕 {len(new_rows)} new question(s) added this sync:")
+        print("=" * 60)
+        for row in new_rows:
+            print(f"  ID {row['id']} | Tags: {row.get('tags', '')} | {row['question'][:120]}{'...' if len(row['question']) > 120 else ''}")
+    print("=" * 60)
 
 def download_from_google_sheets():
     """Download CSV from published Google Sheets."""
@@ -117,6 +145,9 @@ def main():
     print("Google Sheets → Local CSV → HuggingFace Sync")
     print("=" * 60)
 
+    # Capture existing IDs before overwriting the local CSV
+    old_ids = get_existing_ids()
+
     # Step 1: Download from Google Sheets
     if not download_from_google_sheets():
         return
@@ -124,6 +155,9 @@ def main():
     # Step 2: Upload to HuggingFace
     if not upload_to_huggingface():
         return
+
+    # Report newly added questions
+    print_new_questions(old_ids)
 
     print("\n" + "=" * 60)
     print("✅ Sync complete!")
