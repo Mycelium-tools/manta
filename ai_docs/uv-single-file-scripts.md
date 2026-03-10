@@ -1,1 +1,0 @@
-# UV scripting patterns

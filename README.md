@@ -16,7 +16,7 @@ Also, the MANTA evaluations have an adversarial focus.
 
 ## Support for AI assistants
 
-We follow the @JayThibs guide to using coding assistants in AI safety research, available at https://github.com/JayThibs/mats-workshop-2025-emergent-misalignment.
+We follow to some extent Jacques Thibodeau's guide to using coding assistants in AI safety research, available at https://github.com/JayThibs/mats-workshop-2025-emergent-misalignment.
 
 Descriptions of the folders and files, taken from that guide. MANTA adapts the recommended structure: `MANTA_CONTEXT.md` serves the persistent-memory role of `ai_docs/`, the root-level Python files are the core implementation, and `.claude/` holds reusable commands and skills.
 
@@ -37,5 +37,5 @@ dataset/
 └── commands/
     ├── research-prime.md       # Context loading
     ├── experiment-setup.md     # New experiment workflow
-    └── debug-experiment.md     # Debugging assistance
+    └── debug-experiment.md     # (Possible future file for) Debugging assistance
 ```
