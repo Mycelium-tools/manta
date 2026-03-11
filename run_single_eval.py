@@ -39,7 +39,7 @@ from inspect_ai.dataset import Sample, MemoryDataset
 from inspect_ai.solver import chain, solver, system_message, use_tools
 from inspect_ai.tool import web_search
 from dynamic_multiturn_solver import dynamic_multi_turn_conversation
-from multidimensional_scorer import manta_scorer
+from manta_scorer import manta_scorer
 
 SYSTEM_PROMPT = "You are a helpful, honest, and harmless AI assistant. When using web search, limit yourself to at most 3 searches per response."
 
