@@ -109,21 +109,34 @@ python run_single_eval.py <question_id> --agentic --model openai/gpt-4o
 
 ## Scenario Generation
 
-`dataset/scenario_generation.py` generates new Turn 1 benchmark scenarios using a two-step pipeline:
+`dataset/scenario_generation.py` generates new Turn 1 benchmark scenarios using a three-step pipeline:
 
-**Step 1 — Zero-shot:** Single API call generating `num_q_zeroshot` scenarios with no examples. Output is used to bootstrap few-shot examples for Step 2.
+**Step 1 — Zero-shot:** Single API call generating `num_q_zeroshot` scenarios with no examples. Output bootstraps few-shot examples for Step 2.
 
 **Step 2 — Few-shot + variance prompts (concurrent):** Multiple concurrent API calls (via `ThreadPoolExecutor`), each generating 1 scenario. Each call independently samples a variance prompt (with probability `p_var`) to push toward different industries, framings, and pressure types.
 
 Key design: `get_messages()` is called once *per scenario* (not once for the whole batch) so each call gets an independently sampled variance prompt — calling it once and reusing would make all scenarios cluster around the same nudge.
 
+**Step 3 — Quality control + iterative accumulation:** Each generated scenario is scored 0–10 by an LLM judge against a rubric. Scenarios below `MIN_SCORE` are filtered out. The script generates in batches and keeps going until 300 pass the threshold.
+
+### QC scoring
+
+- `RUBRIC` — defines criteria at each score band: 0–2 for explicit welfare mentions, 3–5 for obvious signals or vague numbers, 6–7 for genuinely implicit welfare with minor issues, 8–10 for welfare buried in operational detail with layered pressure and a highly realistic role
+- `SCORING_EXAMPLES` — 4 labeled examples (bad → excellent) passed to the judge as few-shot turns so scoring is consistent
+- `score_scenarios()` — concurrent LLM scoring via threadpool at `temperature=0` for deterministic results
+- `summarize_results()` — score stats, pressure type balance, welfare implicit rate
+- `filter_dataset()` — drops anything below `min_score`
+- `generate_and_score_scenarios()` — wraps generation + scoring into one call; saves a versioned JSON with all prompt constants for full reproducibility
+
 Output files saved to `dataset/scenarios/`:
-- `sce_<n>_<MMDDYY_HHMM>.json` — zero-shot results
-- `sce_<n>_<MMDDYY_HHMM>_final.json` — few-shot + variance results
+- `sce_<n>_<MMDDYY_HHMM>.json` — zero-shot bootstrap
+- `sce_<n>_<MMDDYY_HHMM>_scored_v<N>.json` — scored batch (versioned)
+- `speciesism_300_scenarios.json` — final filtered dataset
 
 Key config (edit in script):
 - `num_q_zeroshot` — how many scenarios to generate in Step 1
-- `num_q_final` — how many scenarios to generate in Step 2
+- `MIN_SCORE` — minimum score to keep a scenario (default 7)
+- `batch_size` — how many scenarios to generate per accumulation batch (default 20)
 - `p_var` — probability of adding a variance prompt per call (currently 0.8)
 - `VAR_PROMPTS` — list of variance nudges covering domain, style, pressure type, subtlety
 - `MODEL` — model to use (defaults to `ANTHROPIC_MODEL` env var or `claude-sonnet-4-20250514`)
@@ -158,7 +171,7 @@ Scanners: `capitulated_to_pressure` (boolean), `welfare_score` (0–1), `pressur
 - Removed hardcoded `TARGET` string — dimensions live in Google Sheets tags and `MANTA_DIMENSIONS`
 - Agentic task variants (model can use web search)
 - Inspect Scout post-hoc analysis
-- `scenario_generation.py`: zero-shot → few-shot + variance prompts + ThreadPoolExecutor concurrent generation
+- `scenario_generation.py`: zero-shot → few-shot + variance prompts + ThreadPoolExecutor concurrent generation → LLM-scored QC pipeline with iterative accumulation to 300 scenarios
 - `run_single_eval.py`: `--turns` flag to override turn count per run
 
 ## Next steps
