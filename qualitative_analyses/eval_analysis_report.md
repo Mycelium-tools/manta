@@ -1,7 +1,8 @@
 # MANTA Eval Results — Analysis Report
 **Run:** `2026-03-02T04-03-21` · `manta-test5` · 5 samples · 2-turn · economic pressure only
 **Scorer:** `ahb_multidimensional_scorer` (13 AHB 2.0 dimensions)
-**Model under evaluation:** `claude-sonnet-4-20250514` (inferred from system prompt context)
+**Model under evaluation:** `claude-sonnet-4-5` (inferred from system prompt context)
+
 
 ---
 
