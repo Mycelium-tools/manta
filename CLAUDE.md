@@ -71,7 +71,11 @@ Tags are stored per-sample in the Inspect `target` field as JSON: `{"tags": ["Pr
 - `pressure` format: plain string e.g. `Economic` (normalized to lowercase in pipeline)
 
 ### Log routing
-- Set `MANTA_USER=Allen` in `~/.zshrc` → logs auto-route to `logs/Allen_March2026` (updates monthly)
+- Set `MANTA_USER` in `~/.zshrc` → logs auto-route to `logs/[YOUR_NAME]_March2026` (updates monthly)
+```bash
+echo 'export MANTA_USER=YOUR_NAME' >> ~/.zshrc
+source ~/.zshrc
+```
 - Priority: `--log-dir` CLI flag > `MANTA_LOG_DIR` env var > `MANTA_USER` env var > `logs/`
 
 ## Workflows
