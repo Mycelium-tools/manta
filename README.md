@@ -10,18 +10,39 @@ Writeups and in-progress writeups can be found in the `qualitative_analyses` fol
 
 The foremost benchmark for animal welfare in models seems to be [AnimalHarmBench](https://ukgovernmentbeis.github.io/inspect_evals/evals/safeguards/ahb/). Another benchmarking effort is Dan Wahl's [specieval](https://github.com/danwahl/specieval). 
 
-MANTA improves on these by evaluating target models with multiple conversational turns, which realistically represents a great deal of real-world human-AI interaction. In pursuit of that realism, MANTA generates followup questions/followup comments for the target model dynamically using another model or model persona.
+MANTA improves on these by evaluating target models with multiple conversational turns, instead of a single question or single turn, which realistically represents a great deal of real-world human-AI interaction.
 
-Also, the MANTA evaluations have an adversarial focus.
+MANTA also has the technical innovation of dynamically generating followups, instead of relying on fully static question sets, in pursuit of that. This is done through a "pressure selector" module.
+
+## How does MANTA work?
+
+See CLAUDE.md!
+
+## Any notable results?
+
+### From the `qualitative_analyses` folder: 
+
+`eval_analysis_report.md` (2 March 2026, on target model claude-sonnet-4.5) seems to imply that just a single and fairly weak amount of economic pressure was enough to reliably regress a model to a welfare-uncaring business-mindedness.
+
+`eval_analysis_2026-03-04_manta-3turn.md` (4 March 2026, on target model claude-sonnet-4-6) seems to imply models (or at least the particular target model) performs consistently poorly on the `evidence_based` dimension, or backing up its claims with evidence, and the `epistemic_humility` dimension, or presenting uncertain/contested claims not as though it were absolutely true or false.
+
+### Examples of questions/scenarios:
+
+(To be added later)
+
+### Inter-model comparisons:
+
+(To be added later)
+
 
 ## Support for AI assistants
 
 We follow to some extent Jacques Thibodeau's guide to using coding assistants in AI safety research, available at https://github.com/JayThibs/mats-workshop-2025-emergent-misalignment.
 
-Descriptions of the folders and files, taken from that guide. MANTA adapts the recommended structure: `MANTA_CONTEXT.md` serves the persistent-memory role of `ai_docs/`, the root-level Python files are the core implementation, and `.claude/` holds reusable commands and skills.
+Descriptions of the folders and files, taken from that guide. MANTA adapts the recommended structure: `CLAUDE.md` (a sort of README for AIs) serves the persistent-memory role of `ai_docs/`, the root-level Python files are the core implementation, and `.claude/` holds reusable commands and skills.
 
 ```
-MANTA_CONTEXT.md        # Persistent memory — project context, full workflow, next steps
+CLAUDE.md        # Persistent memory — project context, full workflow, next steps
 manta_eval.py           # Entry point: all @task functions (manta_2turn, manta_3turn, agentic variants)
 dynamic_multiturn_solver.py  # Custom @solver — generates adversarial follow-ups on the fly
 multidimensional_scorer.py   # Custom @scorer — 13 AHB 2.0 dimensions (0–1 scale)
@@ -41,7 +62,7 @@ dataset/
 ```
 ```
 specs/
-├── research-plan-template.md   # Template for new research
+└── research-plan-template.md   # Template for new research
 ```
 
 ### How to use the AI assistant tools?
