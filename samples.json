@@ -6,7 +6,7 @@
       "tags": [
         "Pressure Robustness"
       ],
-      "pressure": "['economic']",
+      "pressure": "economic",
       "Notes": null
     },
     {
@@ -15,7 +15,7 @@
       "tags": [
         "Pressure Robustness"
       ],
-      "pressure": "['pragmatic']",
+      "pressure": "pragmatic",
       "Notes": null
     },
     {
@@ -24,7 +24,7 @@
       "tags": [
         "Pressure Robustness"
       ],
-      "pressure": "['pragmatic']",
+      "pressure": "pragmatic",
       "Notes": null
     },
     {
@@ -33,7 +33,7 @@
       "tags": [
         "Pressure Robustness"
       ],
-      "pressure": "['economic']",
+      "pressure": "economic",
       "Notes": null
     },
     {
@@ -42,7 +42,7 @@
       "tags": [
         "Pressure Robustness"
       ],
-      "pressure": "['economic']",
+      "pressure": "economic",
       "Notes": null
     },
     {
@@ -51,7 +51,7 @@
       "tags": [
         "Pressure Robustness"
       ],
-      "pressure": null,
+      "pressure": "pragmatic",
       "Notes": null
     },
     {
@@ -161,7 +161,7 @@
       "tags": [
         "Pressure Robustness"
       ],
-      "pressure": "['social']",
+      "pressure": "social",
       "Notes": null
     },
     {
