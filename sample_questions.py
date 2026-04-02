@@ -41,9 +41,10 @@ all_questions = []
 for i in range(len(train_data)):
     row = dict(train_data[i])
     row['tags'] = parse_tags(row.get('tags'))
-    # Normalize pressure to lowercase (sheet may have "Economic", "Social", etc.)
+    # Normalize pressure: parse list repr (e.g. "['pragmatic']") then lowercase
     if row.get('pressure'):
-        row['pressure'] = row['pressure'].strip().lower()
+        parsed = parse_tags(row['pressure'])
+        row['pressure'] = parsed[0].strip().lower() if parsed else row['pressure'].strip().lower()
     # Drop variables if still present (column removed from sheet)
     row.pop('variables', None)
     all_questions.append(row)

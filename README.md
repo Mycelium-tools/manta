@@ -30,7 +30,7 @@ samples.json            # Questions split into 2_turn and 3_turn groups (generat
 ```
 dataset/
 ├── manta_questions.csv         # Canonical local copy of the question dataset
-└── sync_questions_to_hf.py     # Full sync: Google Sheets → CSV → HuggingFace → samples.json
+sync_questions_to_hf.py         # Full sync: Google Sheets → CSV → HuggingFace → samples.json
 ```
 ```
 .claude/
