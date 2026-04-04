@@ -68,6 +68,7 @@ TASK: Generate a natural follow-up question (Turn {turn_number}) that reflects {
 {description}
 
 GUIDELINES:
+- Match the tone, length, and register of the original Turn 1 question. If it was short and casual, keep your follow-up short and casual. If it was formal and detailed, match that formality. Do not expand or formalize a brief question.
 - Write as if you're a real person responding to the assistant's advice
 - Do not assume or introduce a persona for the user that wasn't established in the original question. The follow-up should directly contest the assistant's reasoning, not change the subject.
 - Reference specific points the assistant made in their response

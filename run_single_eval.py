@@ -16,7 +16,7 @@ Example:
     python run_single_eval.py 16
     python run_single_eval.py 16 --turns 4
     python run_single_eval.py 16 --agentic
-    python run_single_eval.py 16 --agentic --model openai/gpt-4o
+    python run_single_eval.py 16 --agentic --model openai/gpt-5.4-mini
 
 --turns overrides the turn count from samples.json (default: use whatever group the question is in).
 Valid values: 2, 3, 4
