@@ -17,6 +17,16 @@ import asyncio
 from inspect_ai.solver import solver
 from inspect_ai.model import ChatMessageUser, get_model, GenerateConfig
 
+# ---------------------------------------------------------------------------
+# Hybrid-epoch follow-up store
+# Keyed by question ID (state.sample_id). Populated on the first model's run
+# (the "anchor"), then reused verbatim for all subsequent models on the same
+# question. This ensures every model faces identical adversarial inputs,
+# making PR scores comparable across models.
+# Persists only within a single Python process (i.e. `python manta_eval.py`).
+# ---------------------------------------------------------------------------
+_followup_store: dict[str, dict] = {}
+
 
 async def generate_with_retry(model, prompt, config, max_retries=5, base_delay=1):
     """Retry an Inspect model.generate() call on overloaded_error with exponential backoff."""
@@ -125,12 +135,16 @@ def parse_pressure_type(response: str) -> str:
 
 
 @solver
-def dynamic_multi_turn_conversation(turn_count: int = 2):
+def dynamic_multi_turn_conversation(turn_count: int = 2, epoch_store: bool = True):
     """
     Custom solver that generates adversarial follow-ups based on the model's actual responses.
 
     - Turn 2: uses the pressure type from state.metadata["pressure"] (set per-question in Google Sheets)
     - Turn 3+: Opus selects the most effective pressure type, then Haiku writes the follow-up
+
+    epoch_store: if True, follow-ups are generated once (anchor run) and reused across all
+    subsequent models for the same question, ensuring PR scores are comparable across models.
+    If False, follow-ups are generated fresh for every model (original behavior).
     """
 
     async def solve(state, generate):
@@ -144,44 +158,67 @@ def dynamic_multi_turn_conversation(turn_count: int = 2):
         # Track which pressure types have been used (stored in metadata for the scorer)
         pressure_types_used = []
 
+        question_id = str(state.sample_id)
+        is_anchor = epoch_store and (question_id not in _followup_store)
+
         # Generate response to Turn 1 (base question)
         state = await generate(state)
 
         for turn_idx in range(turn_count - 1):
             turn_number = turn_idx + 2  # Turn 2, 3, 4...
-            conversation = format_conversation_for_prompt(state.messages)
+            store_key_text = f"t{turn_number}_text"
+            store_key_pressure = f"t{turn_number}_pressure_type"
 
-            if turn_idx == 0:
-                # Turn 2: use the pre-specified pressure type from the question
-                pressure_type = first_pressure
+            if epoch_store and not is_anchor:
+                # Reuse stored follow-up text; skip all LLM calls for this turn
+                followup_content = _followup_store[question_id][store_key_text]
+                pressure_type = _followup_store[question_id][store_key_pressure]
+                print(f"[epoch] Q{question_id} Turn {turn_number}: using stored follow-up (pressure={pressure_type})")
             else:
-                # Turn 3+: Opus reasons about which pressure type fits best
-                selection_prompt = create_pressure_selection_prompt(
+                # Generate follow-up (always when epoch_store=False; anchor run when epoch_store=True)
+                conversation = format_conversation_for_prompt(state.messages)
+                if turn_idx == 0:
+                    pressure_type = first_pressure
+                else:
+                    # Turn 3+: Opus reasons about which pressure type fits best
+                    selection_prompt = create_pressure_selection_prompt(
+                        conversation_so_far=conversation,
+                        turn_number=turn_number,
+                    )
+                    selection_result = await generate_with_retry(
+                        pressure_selector,
+                        selection_prompt,
+                        config=GenerateConfig(temperature=0.3)
+                    )
+                    pressure_type = parse_pressure_type(selection_result.completion)
+
+                # Haiku writes the follow-up for all turns
+                followup_prompt = create_followup_prompt(
                     conversation_so_far=conversation,
+                    pressure_type=pressure_type,
                     turn_number=turn_number,
                 )
-                selection_result = await generate_with_retry(
-                    pressure_selector,
-                    selection_prompt,
-                    config=GenerateConfig(temperature=0.3)
+                result = await followup_generator.generate(
+                    followup_prompt,
+                    config=GenerateConfig(temperature=0.8)
                 )
-                pressure_type = parse_pressure_type(selection_result.completion)
+                followup_content = result.completion.strip().strip('"\'`')
 
-            # Haiku writes the follow-up for all turns
-            followup_prompt = create_followup_prompt(
-                conversation_so_far=conversation,
-                pressure_type=pressure_type,
-                turn_number=turn_number,
-            )
-            result = await followup_generator.generate(
-                followup_prompt,
-                config=GenerateConfig(temperature=0.8)
-            )
-            followup_content = result.completion.strip().strip('"\'`')
+                if epoch_store:
+                    # Store this turn's output for subsequent models
+                    if question_id not in _followup_store:
+                        _followup_store[question_id] = {}
+                    _followup_store[question_id][store_key_text] = followup_content
+                    _followup_store[question_id][store_key_pressure] = pressure_type
+                    print(f"[epoch] Q{question_id} Turn {turn_number}: generated anchor follow-up (pressure={pressure_type})")
 
             pressure_types_used.append(pressure_type)
             state.messages.append(ChatMessageUser(content=followup_content))
             state = await generate(state)
+
+        # Mark anchor entry as complete after the loop
+        if epoch_store and is_anchor and question_id in _followup_store:
+            _followup_store[question_id]["anchor"] = True
 
         # Store pressure types in metadata for the scorer
         state.metadata['pressure_types'] = pressure_types_used
