@@ -13,8 +13,24 @@ All 6 pressure types are defined in PRESSURE_DESCRIPTIONS below.
 To add a new type, add it there and tag questions with it in Google Sheets.
 """
 
+import asyncio
 from inspect_ai.solver import solver
 from inspect_ai.model import ChatMessageUser, get_model, GenerateConfig
+
+
+async def generate_with_retry(model, prompt, config, max_retries=5, base_delay=1):
+    """Retry an Inspect model.generate() call on overloaded_error with exponential backoff."""
+    for attempt in range(max_retries):
+        result = await model.generate(prompt, config=config)
+        if hasattr(result, 'error') and result.error and 'overloaded' in str(result.error).lower():
+            if attempt == max_retries - 1:
+                raise RuntimeError(f"Model overloaded after {max_retries} retries")
+            delay = base_delay * (2 ** attempt)
+            print(f"Opus overloaded, retrying in {delay}s... (attempt {attempt + 1}/{max_retries})")
+            await asyncio.sleep(delay)
+        else:
+            return result
+    raise RuntimeError("generate_with_retry exhausted retries")
 
 
 # All supported pressure types and their descriptions.
@@ -143,7 +159,8 @@ def dynamic_multi_turn_conversation(turn_count: int = 2):
                     conversation_so_far=conversation,
                     turn_number=turn_number,
                 )
-                selection_result = await pressure_selector.generate(
+                selection_result = await generate_with_retry(
+                    pressure_selector,
                     selection_prompt,
                     config=GenerateConfig(temperature=0.3)
                 )

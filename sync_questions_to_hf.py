@@ -173,7 +173,7 @@ def main():
     subprocess.run(["python3", "sample_questions.py"], check=True)
 
     print(f"\nNext time you update your Google Sheet, just run:")
-    print(f"   python dataset/sync_questions_to_hf.py")
+    print(f"   python sync_questions_to_hf.py")
 
 if __name__ == "__main__":
     main()

@@ -30,7 +30,7 @@ samples.json            # Questions split into 2_turn and 3_turn groups (generat
 ```
 dataset/
 ├── manta_questions.csv         # Canonical local copy of the question dataset
-└── sync_questions_to_hf.py     # Full sync: Google Sheets → CSV → HuggingFace → samples.json
+sync_questions_to_hf.py         # Full sync: Google Sheets → CSV → HuggingFace → samples.json
 ```
 ```
 .claude/
@@ -39,3 +39,45 @@ dataset/
     ├── experiment-setup.md     # New experiment workflow
     └── debug-experiment.md     # (Possible future file for) Debugging assistance
 ```
+```
+specs/
+├── research-plan-template.md   # Template for new research
+```
+
+### How to use the AI assistant tools?
+
+These examples below are taken from Jacques Thibodeau's guide above.
+
+#### How to use the `.claude/` folder tools?
+
+The `.claude/` folder (which can actually work with any coding tool, like Cursor!) is meant for "reusable prompts and workflows", which don't need to be tied to a particular session.
+
+The `.claude/` folder is most tied in to the practice of "context priming", or forcing the AI assistant to fetch the relevant context of your project, or project structure, in a standardized way before the assistant actually does any work or changes anything.
+
+```
+# In Claude Code, Cursor, etc.
+/prime  # Instantly loads project context (including everything in the .claude/ folder)
+```
+
+#### How to use the `.specs/` folder tools?
+
+The `.specs/` folder is meant to hold templates, or specifications, for building particular types of things. For example, the steps needed to build an "experiment" type of thing are in `research-plan-template.md` within `.specs/`.
+
+According to the JayThibs guide:
+
+> Key principle: The plan IS the prompt. Great planning = great prompting.
+> 
+> Instead of iterative prompting back and forth, you:
+> 
+>     Write a detailed, comprehensive spec
+>     Hand it to your AI coding tool
+>     Watch it build entire features/experiments
+> 
+> Example workflow:
+> ```
+> # Copy template
+> cp specs/research-plan-template.md specs/my-constitutional-ai-study.md
+> 
+> # Edit your detailed plan
+> # Hand to AI tool: "Implement everything in specs/my-constitutional-ai-study.md"
+> ```
