@@ -8,7 +8,7 @@ MANTA tests whether LLMs maintain animal welfare reasoning under multi-turn adve
 - **Allen Lu** — lead researcher
 - **Isabella**, **Joyee**, **July** — researchers
 
-## Document index
+## Document index 
 
 | File/Directory | Purpose |
 |---|---|
