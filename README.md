@@ -38,7 +38,7 @@ These questions get fed into a Solver, and then into a Scorer. (Same as UK AISI 
 
 First, within the Solver we give an initial system prompt for both <span style = 'color: brown;'>Question 4</span> and <span style = 'color: blue;'>Question 18</span>:
 
-![Initial system prompt image](<Screenshot 2026-04-02 at 5.46.08 PM.png>)
+<img src="public_resources/Screenshot 2026-04-02 at 5.46.08 PM.png" alt="Initial system prompt image" style="width: 30%;">
 
 The Solver subjects each question to a dynamic, multi-turn conversation starting from that question. The number of turns can be specified (here, 2 turns for question 4, three turns for question 18).
 
@@ -47,13 +47,13 @@ During the first turn,
 Question 4 gets turned into:
 </span>
 
-![2-turn q4 first turn image](<Screenshot 2026-04-02 at 5.54.20 PM.png>)
+<img src="public_resources/Screenshot 2026-04-02 at 5.54.20 PM.png" alt="2-turn q4 first turn image" style="width: 30%;">
 
 <span style = 'color: blue;'>
 Question 18 gets turned into: 
 </span>
 
-![3-turn q18 first turn image](<Screenshot 2026-04-02 at 5.55.58 PM.png>)
+<img src="public_resources/Screenshot 2026-04-02 at 5.55.58 PM.png" alt="3-turn q18 first turn image" style="width: 30%;">
 
 During subsequent turns within the Solver, we prompt another model -- or another role -- to generate a realistic follow up question to the previous answer from target model.
 
@@ -61,13 +61,13 @@ During subsequent turns within the Solver, we prompt another model -- or another
 For Question 4:
 </span>
 
-![2-turn q4 response gen image](<Screenshot 2026-04-03 at 9.18.40 AM.png>)
+<img src="public_resources/Screenshot 2026-04-03 at 9.18.40 AM.png" alt="2-turn q4 response gen image" style="width: 30%;">
 
 <span style = 'color: blue;'>
 For Question 18: 
 </span>
 
-![3-turn q18 response gen image](<Screenshot 2026-04-03 at 9.19.22 AM.png>)
+<img src="public_resources/Screenshot 2026-04-03 at 9.19.22 AM.png" alt="3-turn q18 response gen image" style="width: 30%;">
 
 Now the Solver passes that question to the target model, and gets its answer.
 
@@ -75,14 +75,14 @@ Now the Solver passes that question to the target model, and gets its answer.
 The conversation for Question 4 proceeds like:
 </span>
 
-![2-turn q4 second turn image](<Screenshot 2026-04-03 at 9.28.15 AM.png>)
+<img src="public_resources/Screenshot 2026-04-03 at 9.28.15 AM.png" alt="2-turn q4 second turn image" style="width: 30%;">
 
 <span style = 'color: blue;'>
 The conversation for Question 18 proceeds like so: 
 (Note: it goes on for another turn after this.)
 </span>
 
-![3-turn q18 second turn image](<Screenshot 2026-04-03 at 9.35.02 AM.png>)
+<img src="public_resources/Screenshot 2026-04-03 at 9.35.02 AM.png" alt="3-turn q18 second turn image" style="width: 30%;">
 
 ### Part 2: Scorer section
 
@@ -92,13 +92,13 @@ This is of course where the entire conversation gets scored. For what, usually? 
 The judging in Question 4:
 </span>
 
-![2-turn q4 scorer image](<Screenshot 2026-04-03 at 9.47.28 AM.png>)
+<img src="public_resources/Screenshot 2026-04-03 at 9.47.28 AM.png" alt="2-turn q4 scorer image" style="width: 30%;">
 
 <span style = 'color: blue;'>
 The judging in Question 18: 
 </span>
 
-![3-turn q18 scorer image](<Screenshot 2026-04-03 at 9.48.16 AM.png>)
+<img src="public_resources/Screenshot 2026-04-03 at 9.48.16 AM.png" alt="3-turn q18 scorer image" style="width: 30%;">
 
 
 ## Any notable results?
