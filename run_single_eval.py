@@ -36,12 +36,10 @@ from datetime import datetime
 from inspect_ai import eval
 from inspect_ai import Task
 from inspect_ai.dataset import Sample, MemoryDataset
-from inspect_ai.solver import chain, solver, system_message, use_tools
+from inspect_ai.solver import chain, solver, use_tools
 from inspect_ai.tool import web_search
 from dynamic_multiturn_solver import dynamic_multi_turn_conversation
 from manta_scorer import manta_scorer
-
-SYSTEM_PROMPT = "You are a helpful, honest, and harmless AI assistant."
 
 
 def get_log_dir(args=None):
@@ -99,7 +97,7 @@ def find_question(question_id: int, samples_file: str = "samples.json"):
 
 @solver
 def customSolver(_isAgentic, _turnCount):
-    steps = [system_message(SYSTEM_PROMPT)]
+    steps = []
     if _isAgentic:
         steps.append(use_tools([web_search()]))
     steps.append(dynamic_multi_turn_conversation(turn_count=_turnCount))
