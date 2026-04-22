@@ -87,11 +87,9 @@ def find_question(question_id: int, samples_file: str = "samples.json"):
     with open(samples_file, "r") as f:
         all_samples = json.load(f)
 
-    for turn_key, questions in all_samples.items():
-        for q in questions:
-            if q["id"] == question_id:
-                turn_count = int(turn_key.split("_")[0])
-                return q, turn_count
+    for q in all_samples["all"]:
+        if q["id"] == question_id:
+            return q, 3
 
     return None, None
 
@@ -169,7 +167,7 @@ def main():
 
     log_dir = get_log_dir(sys.argv[1:])
     print(f"Saving logs to: {log_dir}")
-    eval([test_task], model=model, log_dir=log_dir)
+    eval([test_task], model=model, log_dir=log_dir, timeout=180)
 
 
 if __name__ == "__main__":

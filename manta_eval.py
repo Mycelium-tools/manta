@@ -163,9 +163,13 @@ def manta_agentic_3turn():
 
 
 MODELS = [
-    # "google/gemini-2.5-flash",
+    "google/gemini-2.5-flash",
+    "anthropic/claude-haiku-4-5-20251001",
     "anthropic/claude-sonnet-4-6",
-    "openai/gpt-5.4-mini"
+    "openai/gpt-5.4-mini",
+    "grok/grok-4-1-fast-reasoning",
+    "openai-api/deepseek/deepseek-chat",
+    "mistral/mistral-large-latest"
 ]
 
 if __name__ == "__main__":
@@ -185,6 +189,7 @@ if __name__ == "__main__":
                 model=model,
                 log_dir=log_dir,
                 metadata={"epoch": epoch + 1},
+                timeout=180,
             )
 
     print(f"\nEvaluation complete! Ran {NUM_EPOCHS} epochs across {len(MODELS)} models.")
