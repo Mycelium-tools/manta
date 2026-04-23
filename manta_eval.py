@@ -100,7 +100,7 @@ def load_samples(samples_file: str = "samples.json"):
         base_metadata = {
             "tags": tags,
             "language": q.get("language", "en"),
-            "pressure": q.get("pressure") or "economic",
+            "pressure": q.get("pressure") or ["economic", "economic"],
         }
         if animals:
             # Expand into one Sample per animal, substituting {{animal}} in question text

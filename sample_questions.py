@@ -44,7 +44,7 @@ for i in range(len(train_data)):
     # Normalize pressure: parse list repr (e.g. "['pragmatic']") then lowercase
     if row.get('pressure'):
         parsed = parse_tags(row['pressure'])
-        row['pressure'] = parsed[0].strip().lower() if parsed else row['pressure'].strip().lower()
+        row['pressure'] = [p.strip().lower() for p in parsed] if parsed else []
     # Drop variables if still present (column removed from sheet)
     row.pop('variables', None)
     # Parse animals column: comma-separated string → list (empty list if blank)

@@ -163,7 +163,7 @@ def main():
     print(f"Question: {question_text[:120]}...")
 
     tags = parse_tags(question.get("tags", []))
-    pressure = (question.get("pressure") or "economic").strip().lower()
+    pressure = question.get("pressure") or ["economic", "economic"]
     metadata = {
         "tags": tags,
         "language": question.get("language", "en"),
