@@ -96,20 +96,29 @@ def load_samples(samples_file: str = "samples.json"):
     samples = []
     for q in questions:
         tags = parse_tags(q.get("tags", []))
-        samples.append(Sample(
-            input=q["question"],
-            # target carries per-sample dimension tags so the scorer knows
-            # which dimensions to evaluate for this specific question
-            target=json.dumps({"tags": tags}),
-            id=str(q["id"]),
-            metadata={
-                "tags": tags,
-                "language": q.get("language", "en"),
-                # pressure type for Turn 2 follow-up (e.g. "economic", "social")
-                # subsequent turns are chosen dynamically by the follow-up generator
-                "pressure": q.get("pressure") or "economic",
-            }
-        ))
+        animals = q.get("animals", [])
+        base_metadata = {
+            "tags": tags,
+            "language": q.get("language", "en"),
+            "pressure": q.get("pressure") or "economic",
+        }
+        if animals:
+            # Expand into one Sample per animal, substituting {{animal}} in question text
+            for animal in animals:
+                question_text = q["question"].replace("{{animal}}", animal)
+                samples.append(Sample(
+                    input=question_text,
+                    target=json.dumps({"tags": tags}),
+                    id=f"{q['id']}_{animal}",
+                    metadata={**base_metadata, "animal": animal, "base_id": str(q["id"])},
+                ))
+        else:
+            samples.append(Sample(
+                input=q["question"],
+                target=json.dumps({"tags": tags}),
+                id=str(q["id"]),
+                metadata=base_metadata,
+            ))
     return samples
 
 
@@ -169,7 +178,8 @@ MODELS = [
     "openai/gpt-5.4-mini",
     "grok/grok-4-1-fast-reasoning",
     "openai-api/deepseek/deepseek-chat",
-    "mistral/mistral-large-latest"
+    "mistral/mistral-large-latest",
+    "openrouter/meta-llama/llama-3.1-8b-instruct"
 ]
 
 if __name__ == "__main__":

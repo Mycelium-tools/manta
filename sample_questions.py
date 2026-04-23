@@ -47,6 +47,9 @@ for i in range(len(train_data)):
         row['pressure'] = parsed[0].strip().lower() if parsed else row['pressure'].strip().lower()
     # Drop variables if still present (column removed from sheet)
     row.pop('variables', None)
+    # Parse animals column: comma-separated string → list (empty list if blank)
+    raw_animals = row.get('animals', '') or ''
+    row['animals'] = [a.strip() for a in raw_animals.split(',') if a.strip()]
     all_questions.append(row)
 
 # All questions run as 3-turn; old keys kept for backwards compatibility

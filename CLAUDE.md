@@ -66,9 +66,12 @@ Tags are stored per-sample in the Inspect `target` field as JSON: `{"tags": ["Pr
 ### Data pipeline
 - Source of truth: **Google Sheets** → `dataset/manta_questions.csv` → HuggingFace → `samples.json`
 - **Never edit `samples.json` directly** — always sync via: `python sync_questions_to_hf.py`
-- Google Sheet columns: `id`, `question`, `tags`, `pressure`, `language`, `translation`
+- Google Sheet columns: `id`, `question`, `tags`, `pressure`, `animals`, `Notes`
 - `tags` format: `['Pressure Robustness']` (Python list repr, auto-parsed)
 - `pressure` format: plain string e.g. `Economic` (normalized to lowercase in pipeline)
+- `animals` format: comma-separated animal names e.g. `cricket,salmon,chimpanzee` (leave blank for no variation)
+  - Questions with animal variations must use `{{animal}}` placeholder in the question text
+  - Each animal becomes a separate Sample at load time — ID format: `{base_id}_{animal}` e.g. `5_cricket`
 
 ### Log routing
 - Set `MANTA_USER` in `~/.zshrc` → logs auto-route to `logs/[YOUR_NAME]_March2026` (updates monthly)

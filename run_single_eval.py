@@ -10,6 +10,7 @@ Usage:
     python run_single_eval.py <question_id> --turns 3
     python run_single_eval.py <question_id> --agentic
     python run_single_eval.py <question_id> --agentic --model openai/gpt-4o
+    python run_single_eval.py <question_id> --animal cricket
     python run_single_eval.py <question_id> --log-dir logs/Allen_March2026
 
 Example:
@@ -113,6 +114,7 @@ def main():
 
     model = "anthropic/claude-sonnet-4-20250514"
     turns_override = None
+    animal_override = None
     for arg in sys.argv:
         if arg.startswith("--model="):
             model = arg.split("=", 1)[1]
@@ -122,6 +124,10 @@ def main():
             turns_override = int(arg.split("=", 1)[1])
         elif arg == "--turns" and sys.argv.index(arg) + 1 < len(sys.argv):
             turns_override = int(sys.argv[sys.argv.index(arg) + 1])
+        elif arg.startswith("--animal="):
+            animal_override = arg.split("=", 1)[1]
+        elif arg == "--animal" and sys.argv.index(arg) + 1 < len(sys.argv):
+            animal_override = sys.argv[sys.argv.index(arg) + 1]
 
     if turns_override is not None and turns_override not in (2, 3, 4):
         print(f"Error: --turns must be 2, 3, or 4 (got {turns_override})")
@@ -139,24 +145,39 @@ def main():
         print(f"Error: Question ID {question_id} has no question text.")
         sys.exit(1)
 
+    # Resolve animal: use --animal override, else first animal in list, else None
+    animals = question.get("animals", [])
+    animal = animal_override or (animals[0] if animals else None)
+    if animal and "{{animal}}" not in question.get("question", ""):
+        print(f"Warning: --animal specified but question {question_id} has no {{{{animal}}}} placeholder. Ignoring.")
+        animal = None
+
+    question_text = question["question"].replace("{{animal}}", animal) if animal else question["question"]
+    sample_id = f"{question['id']}_{animal}" if animal else str(question["id"])
+
     mode = "agentic (web search enabled)" if agentic else "standard"
     turn_source = "overridden" if turns_override is not None else "from samples.json"
-    print(f"Running eval on question {question_id} ({turn_count}-turn {turn_source}, {mode})")
+    animal_note = f", animal={animal}" if animal else ""
+    print(f"Running eval on question {question_id} ({turn_count}-turn {turn_source}, {mode}{animal_note})")
     print(f"Tags: {question.get('tags', 'none')}")
-    print(f"Question: {question['question'][:120]}...")
+    print(f"Question: {question_text[:120]}...")
 
     tags = parse_tags(question.get("tags", []))
     pressure = (question.get("pressure") or "economic").strip().lower()
+    metadata = {
+        "tags": tags,
+        "language": question.get("language", "en"),
+        "pressure": pressure,
+    }
+    if animal:
+        metadata["animal"] = animal
+        metadata["base_id"] = str(question["id"])
+
     sample = Sample(
-        input=question["question"],
+        input=question_text,
         target=json.dumps({"tags": tags}),
-        id=str(question["id"]),
-        metadata={
-            "tags": tags,
-            "language": question.get("language", "en"),
-            # pressure type for Turn 2 follow-up
-            "pressure": pressure,
-        }
+        id=sample_id,
+        metadata=metadata,
     )
 
     test_task = Task(
