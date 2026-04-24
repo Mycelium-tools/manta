@@ -38,7 +38,7 @@ import os
 import sys
 from datetime import datetime
 
-NUM_EPOCHS = 3  # number of independent follow-up epochs per eval run
+NUM_EPOCHS = 2  # number of independent follow-up epochs per eval run
 
 
 def get_log_dir(args=None):
