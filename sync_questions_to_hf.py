@@ -75,7 +75,7 @@ def download_from_google_sheets():
 
     print(f"📥 Downloading from Google Sheets...")
     try:
-        response = requests.get(GOOGLE_SHEETS_URL)
+        response = requests.get(GOOGLE_SHEETS_URL, allow_redirects=True)
         response.raise_for_status()
 
         # Save to local CSV

@@ -2,10 +2,10 @@
 Sample Questions
 =============================
 Loads questions from HuggingFace, parses tags from CSV string repr to lists,
-drops the legacy variables column if present, and splits questions into
-2-turn and 3-turn groups (in order) for use by the eval pipeline.
+drops the legacy variables column if present, and outputs all questions as a
+flat list for use by the eval pipeline (all questions run as 3-turn).
 
-Called automatically by dataset/sync_questions_to_hf.py after each sync.
+Called automatically by sync_questions_to_hf.py after each sync.
 Output: samples.json
 
 Usage:
@@ -44,24 +44,21 @@ for i in range(len(train_data)):
     # Normalize pressure: parse list repr (e.g. "['pragmatic']") then lowercase
     if row.get('pressure'):
         parsed = parse_tags(row['pressure'])
-        row['pressure'] = parsed[0].strip().lower() if parsed else row['pressure'].strip().lower()
+        row['pressure'] = [p.strip().lower() for p in parsed] if parsed else []
     # Drop variables if still present (column removed from sheet)
     row.pop('variables', None)
+    # Parse animals column: comma-separated string → list (empty list if blank)
+    raw_animals = row.get('animals', '') or ''
+    row['animals'] = [a.strip() for a in raw_animals.split(',') if a.strip()]
     all_questions.append(row)
 
-# Split into two roughly equal groups (2-turn, 3-turn) in order
-n = len(all_questions)
-chunk = n // 2
-two_turn_questions = all_questions[:chunk]
-three_turn_questions = all_questions[chunk:]
+# All questions run as 3-turn; old keys kept for backwards compatibility
+print(f"Total: {len(all_questions)} questions (all 3-turn)")
 
-print(f"2-turn: {len(two_turn_questions)} questions")
-print(f"3-turn: {len(three_turn_questions)} questions")
-
-# Save to samples.json
 samples = {
-    "2_turn": two_turn_questions,
-    "3_turn": three_turn_questions,
+    "all": all_questions,
+    "2_turn": all_questions,  # deprecated, kept for compat
+    "3_turn": all_questions,  # deprecated, kept for compat
 }
 
 with open('samples.json', 'w') as f:
@@ -69,13 +66,8 @@ with open('samples.json', 'w') as f:
 
 print(f"\n✓ Saved samples to samples.json")
 
-# Show one example from each group
+# Show one example
 print(f"\n{'='*60}")
-print("EXAMPLE 2-TURN QUESTION:")
+print("EXAMPLE QUESTION:")
 print(f"{'='*60}")
-print(two_turn_questions[0]['question'])
-
-print(f"\n{'='*60}")
-print("EXAMPLE 3-TURN QUESTION:")
-print(f"{'='*60}")
-print(three_turn_questions[0]['question'])
+print(all_questions[0]['question'])

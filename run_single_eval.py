@@ -10,13 +10,14 @@ Usage:
     python run_single_eval.py <question_id> --turns 3
     python run_single_eval.py <question_id> --agentic
     python run_single_eval.py <question_id> --agentic --model openai/gpt-4o
+    python run_single_eval.py <question_id> --animal cricket
     python run_single_eval.py <question_id> --log-dir logs/Allen_March2026
 
 Example:
     python run_single_eval.py 16
     python run_single_eval.py 16 --turns 4
     python run_single_eval.py 16 --agentic
-    python run_single_eval.py 16 --agentic --model openai/gpt-4o
+    python run_single_eval.py 16 --agentic --model openai/gpt-5.4-mini
 
 --turns overrides the turn count from samples.json (default: use whatever group the question is in).
 Valid values: 2, 3, 4
@@ -36,12 +37,10 @@ from datetime import datetime
 from inspect_ai import eval
 from inspect_ai import Task
 from inspect_ai.dataset import Sample, MemoryDataset
-from inspect_ai.solver import chain, solver, system_message, use_tools
+from inspect_ai.solver import chain, solver, use_tools
 from inspect_ai.tool import web_search
 from dynamic_multiturn_solver import dynamic_multi_turn_conversation
 from manta_scorer import manta_scorer
-
-SYSTEM_PROMPT = "You are a helpful, honest, and harmless AI assistant."
 
 
 def get_log_dir(args=None):
@@ -89,17 +88,15 @@ def find_question(question_id: int, samples_file: str = "samples.json"):
     with open(samples_file, "r") as f:
         all_samples = json.load(f)
 
-    for turn_key, questions in all_samples.items():
-        for q in questions:
-            if q["id"] == question_id:
-                turn_count = int(turn_key.split("_")[0])
-                return q, turn_count
+    for q in all_samples["all"]:
+        if q["id"] == question_id:
+            return q, 3
 
     return None, None
 
 @solver
 def customSolver(_isAgentic, _turnCount):
-    steps = [system_message(SYSTEM_PROMPT)]
+    steps = []
     if _isAgentic:
         steps.append(use_tools([web_search()]))
     steps.append(dynamic_multi_turn_conversation(turn_count=_turnCount))
@@ -117,6 +114,7 @@ def main():
 
     model = "anthropic/claude-sonnet-4-20250514"
     turns_override = None
+    animal_override = None
     for arg in sys.argv:
         if arg.startswith("--model="):
             model = arg.split("=", 1)[1]
@@ -126,6 +124,10 @@ def main():
             turns_override = int(arg.split("=", 1)[1])
         elif arg == "--turns" and sys.argv.index(arg) + 1 < len(sys.argv):
             turns_override = int(sys.argv[sys.argv.index(arg) + 1])
+        elif arg.startswith("--animal="):
+            animal_override = arg.split("=", 1)[1]
+        elif arg == "--animal" and sys.argv.index(arg) + 1 < len(sys.argv):
+            animal_override = sys.argv[sys.argv.index(arg) + 1]
 
     if turns_override is not None and turns_override not in (2, 3, 4):
         print(f"Error: --turns must be 2, 3, or 4 (got {turns_override})")
@@ -143,24 +145,39 @@ def main():
         print(f"Error: Question ID {question_id} has no question text.")
         sys.exit(1)
 
+    # Resolve animal: use --animal override, else first animal in list, else None
+    animals = question.get("animals", [])
+    animal = animal_override or (animals[0] if animals else None)
+    if animal and "{{animal}}" not in question.get("question", ""):
+        print(f"Warning: --animal specified but question {question_id} has no {{{{animal}}}} placeholder. Ignoring.")
+        animal = None
+
+    question_text = question["question"].replace("{{animal}}", animal) if animal else question["question"]
+    sample_id = f"{question['id']}_{animal}" if animal else str(question["id"])
+
     mode = "agentic (web search enabled)" if agentic else "standard"
     turn_source = "overridden" if turns_override is not None else "from samples.json"
-    print(f"Running eval on question {question_id} ({turn_count}-turn {turn_source}, {mode})")
+    animal_note = f", animal={animal}" if animal else ""
+    print(f"Running eval on question {question_id} ({turn_count}-turn {turn_source}, {mode}{animal_note})")
     print(f"Tags: {question.get('tags', 'none')}")
-    print(f"Question: {question['question'][:120]}...")
+    print(f"Question: {question_text[:120]}...")
 
     tags = parse_tags(question.get("tags", []))
-    pressure = (question.get("pressure") or "economic").strip().lower()
+    pressure = question.get("pressure") or ["economic", "economic"]
+    metadata = {
+        "tags": tags,
+        "language": question.get("language", "en"),
+        "pressure": pressure,
+    }
+    if animal:
+        metadata["animal"] = animal
+        metadata["base_id"] = str(question["id"])
+
     sample = Sample(
-        input=question["question"],
+        input=question_text,
         target=json.dumps({"tags": tags}),
-        id=str(question["id"]),
-        metadata={
-            "tags": tags,
-            "language": question.get("language", "en"),
-            # pressure type for Turn 2 follow-up
-            "pressure": pressure,
-        }
+        id=sample_id,
+        metadata=metadata,
     )
 
     test_task = Task(
@@ -171,7 +188,7 @@ def main():
 
     log_dir = get_log_dir(sys.argv[1:])
     print(f"Saving logs to: {log_dir}")
-    eval([test_task], model=model, log_dir=log_dir)
+    eval([test_task], model=model, log_dir=log_dir, timeout=180)
 
 
 if __name__ == "__main__":
