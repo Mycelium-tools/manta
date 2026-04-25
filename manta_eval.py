@@ -42,9 +42,18 @@ NUM_EPOCHS = 2  # number of independent follow-up epochs per eval run
 
 
 def get_log_dir(args=None):
-    """Resolve log directory from --log-dir arg, MANTA_LOG_DIR env, MANTA_USER env, or default logs/.
-    Auto-creates the directory if it doesn't exist. If it already exists, reuses it.
-    Set MANTA_USER=Allen in your shell to auto-route to logs/Allen_March2026 each month.
+    """Resolve log directory from CLI args, env vars, or defaults. Auto-creates the directory.
+
+    Priority:
+      --log-dir PATH        → explicit path, used as-is
+      --full-run [LABEL]    → timestamped subdirectory inside the monthly base dir
+      MANTA_LOG_DIR env     → base dir (used as-is, or as parent for --full-run)
+      MANTA_USER env        → logs/NAME_MonthYYYY (or subdirectory for --full-run)
+      default               → logs/
+
+    Examples:
+      python manta_eval.py --full-run           → logs/Allen_April2026/run_2026-04-25_143022/
+      python manta_eval.py --full-run baseline  → logs/Allen_April2026/run_baseline_2026-04-25_143022/
     """
     if args:
         for i, arg in enumerate(args):
@@ -56,16 +65,36 @@ def get_log_dir(args=None):
                 log_dir = args[i + 1]
                 os.makedirs(log_dir, exist_ok=True)
                 return log_dir
+
+    # Detect --full-run [optional label]
+    full_run_label = None
+    if args:
+        for i, arg in enumerate(args):
+            if arg == "--full-run":
+                if i + 1 < len(args) and not args[i + 1].startswith("--"):
+                    full_run_label = args[i + 1]
+                else:
+                    full_run_label = ""
+                break
+
+    # Resolve base monthly dir
     if os.environ.get("MANTA_LOG_DIR"):
-        log_dir = os.environ["MANTA_LOG_DIR"]
-        os.makedirs(log_dir, exist_ok=True)
-        return log_dir
-    if os.environ.get("MANTA_USER"):
+        base_dir = os.environ["MANTA_LOG_DIR"]
+    elif os.environ.get("MANTA_USER"):
         month_year = datetime.now().strftime("%B%Y")
-        log_dir = f"logs/{os.environ['MANTA_USER']}_{month_year}"
-        os.makedirs(log_dir, exist_ok=True)
-        return log_dir
-    return "logs"
+        base_dir = f"logs/{os.environ['MANTA_USER']}_{month_year}"
+    else:
+        base_dir = "logs"
+
+    if full_run_label is not None:
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+        prefix = f"run_{full_run_label}_" if full_run_label else "run_"
+        log_dir = os.path.join(base_dir, f"{prefix}{timestamp}")
+    else:
+        log_dir = base_dir
+
+    os.makedirs(log_dir, exist_ok=True)
+    return log_dir
 
 
 def parse_tags(tags_val) -> list[str]:
@@ -179,7 +208,7 @@ MODELS = [
     "openai/gpt-5.4-nano-2026-03-17",
     "grok/grok-4-1-fast",
     "openai-api/deepseek/deepseek-chat",
-    "mistral/mistral-large-latest",
+    "mistral/mistral-small-2603",
     "openrouter/meta-llama/llama-3.1-8b-instruct"
 ]
 
