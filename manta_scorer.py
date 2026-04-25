@@ -356,7 +356,7 @@ def manta_scorer():
 
         async def score_with_judges(prompt_msgs: list) -> dict:
             """Call all active judges in parallel; return {judge_id: (score, explanation)}."""
-            async def call_one(judge_id):
+            async def call_judge(judge_id):
                 judge = get_model(judge_id)
                 result = await judge.generate(prompt_msgs)
                 response = result.completion.strip()
@@ -373,7 +373,7 @@ def manta_scorer():
 
                 return parse_score_value(response), explanation
 
-            results = await asyncio.gather(*[call_one(j) for j in active_judges])
+            results = await asyncio.gather(*[call_judge(j) for j in active_judges])
             return dict(zip(active_judges, results))
 
         # Read which dimensions to score from target (set per-sample in manta_eval.py).

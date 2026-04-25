@@ -201,6 +201,7 @@ if __name__ == "__main__":
                 log_dir=log_dir,
                 metadata={"epoch": epoch + 1},
                 timeout=180,
+                fail_on_error=False,
             )
 
     print(f"\nEvaluation complete! Ran {NUM_EPOCHS} epochs across {len(MODELS)} models.")
