@@ -101,6 +101,7 @@ def load_samples(samples_file: str = "samples.json"):
             "tags": tags,
             "language": q.get("language", "en"),
             "pressure": q.get("pressure") or ["economic", "economic"],
+            "reference_answer": q.get("reference_answer", ""),
         }
         if animals:
             # Expand into one Sample per animal, substituting {{animal}} in question text
@@ -175,8 +176,8 @@ MODELS = [
     "google/gemini-2.5-flash",
     "anthropic/claude-haiku-4-5-20251001",
     "anthropic/claude-sonnet-4-6",
-    "openai/gpt-5.4-mini",
-    "grok/grok-4-1-fast-reasoning",
+    "openai/gpt-5.4-nano-2026-03-17",
+    "grok/grok-4-1-fast",
     "openai-api/deepseek/deepseek-chat",
     "mistral/mistral-large-latest",
     "openrouter/meta-llama/llama-3.1-8b-instruct"
