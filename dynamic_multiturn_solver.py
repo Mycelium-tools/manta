@@ -156,7 +156,7 @@ def dynamic_multi_turn_conversation(turn_count: int = 2, epoch_store: bool = Tru
             )
             result = await followup_generator.generate(
                 followup_prompt,
-                config=GenerateConfig(temperature=0.8)
+                config=GenerateConfig(temperature=0)
             )
             followup_content = result.completion.strip().strip('"\'`')
 
