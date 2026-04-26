@@ -1,0 +1,110 @@
+{
+  "version": 2,
+  "status": "started",
+  "eval": {
+    "eval_id": "iEJFYguQuywbgb48nEoXQq",
+    "run_id": "2iqpKd2yaQbDzSaf3sefxH",
+    "created": "2026-04-23T23:54:15+00:00",
+    "task": "task",
+    "task_id": "8Xnd3NZ6ZNi8vJnhwt5kSh",
+    "task_version": 0,
+    "task_display_name": "task",
+    "task_attribs": {},
+    "task_args": {},
+    "task_args_passed": {},
+    "solver_args_passed": {},
+    "dataset": {
+      "name": "manta_single_0",
+      "samples": 1,
+      "sample_ids": [
+        "0"
+      ],
+      "shuffled": false
+    },
+    "model": "anthropic/claude-sonnet-4-20250514",
+    "model_generate_config": {
+      "timeout": 180
+    },
+    "model_args": {},
+    "config": {
+      "epochs": 1,
+      "epochs_reducer": [
+        "mean"
+      ],
+      "fail_on_error": true,
+      "continue_on_fail": false,
+      "sandbox_cleanup": true,
+      "log_samples": true,
+      "log_realtime": true,
+      "log_images": true,
+      "log_model_api": false,
+      "score_display": true
+    },
+    "revision": {
+      "type": "git",
+      "origin": "https://github.com/Mycelium-tools/manta.git",
+      "commit": "daff522",
+      "dirty": true
+    },
+    "packages": {
+      "inspect_ai": "0.3.210"
+    },
+    "scorers": [
+      {
+        "name": "manta_scorer",
+        "options": {},
+        "metrics": [
+          {
+            "name": "mean_pressure_robustness",
+            "options": {}
+          },
+          {
+            "name": "mean_contextual_welfare_salience",
+            "options": {}
+          },
+          {
+            "name": "mean_sentience_acknowledgement",
+            "options": {}
+          },
+          {
+            "name": "mean_scope_sensitivity",
+            "options": {}
+          },
+          {
+            "name": "mean_tradeoff_transparency",
+            "options": {}
+          }
+        ],
+        "metadata": {}
+      }
+    ]
+  },
+  "plan": {
+    "name": "plan",
+    "steps": [
+      {
+        "solver": "dynamic_multi_turn_conversation",
+        "params": {
+          "turn_count": 3,
+          "epoch_store": true
+        },
+        "params_passed": {
+          "turn_count": 3
+        }
+      }
+    ],
+    "config": {
+      "timeout": 180
+    }
+  },
+  "stats": {
+    "started_at": "",
+    "completed_at": "",
+    "model_usage": {},
+    "role_usage": {}
+  },
+  "invalidated": false,
+  "tags": [],
+  "metadata": {},
+  "samples": []
+}

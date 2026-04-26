@@ -38,7 +38,12 @@ MANTA tests whether LLMs maintain animal welfare reasoning under multi-turn adve
 - **Pressure selector (Opus):** `claude-opus-4-6` — reasons about which pressure type fits best for turns 3+
 - Internal models are fixed and separate from the model being evaluated
 
-API keys required in `.env`: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `HF_TOKEN`
+API keys required in `.env`: 
+- `ANTHROPIC_API_KEY`
+- `OPENAI_API_KEY`
+- `MISTRAL_API_KEY`
+- `GEMINI_API_KEY`
+- `HF_TOKEN`
 
 ### Scoring dimensions (`manta_scorer.py`)
 Each question is tagged with dimensions in Google Sheets. The scorer runs one LLM call per applicable dimension; overall score = weighted average (no extra LLM call).
@@ -85,6 +90,13 @@ source ~/.zshrc
   - `python manta_eval.py --full-run baseline` → `logs/Allen_April2026/run_baseline_2026-04-25_143022/`
 
 ## Workflows
+
+### Sync packages (optional)
+(If you use uv as package manager)
+```bash
+uv sync
+```
+which reads the `pyproject.toml` file. (Note: never edit the `uv.lock` file.)
 
 ### Sync dataset
 ```bash
