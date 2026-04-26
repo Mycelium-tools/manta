@@ -2,21 +2,3 @@
 __pycache__/
 *.pyc
 *.pyo
-
-# LaTeX build artifacts
-paper/*.aux
-paper/*.bbl
-paper/*.blg
-paper/*.fdb_latexmk
-paper/*.fls
-paper/*.log
-paper/*.out
-paper/*.pdf
-paper/*.synctex.gz
-paper/*.toc
-paper/*.lof
-paper/*.lot
-paper/_minted*/
-paper/.auctex-auto/
-
-# Keep figures and the compiled PDF if you want to — remove the *.pdf line above if so
