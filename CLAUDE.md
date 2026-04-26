@@ -6,7 +6,7 @@ MANTA tests whether LLMs maintain animal welfare reasoning under multi-turn adve
 
 ## People
 - **Allen Lu** — lead researcher
-- **Isabella**, **Joyee**, **July** — researchers
+- **Isabella**, **Joyee** — researchers
 
 ## Document index 
 
@@ -38,7 +38,12 @@ MANTA tests whether LLMs maintain animal welfare reasoning under multi-turn adve
 - **Pressure selector (Opus):** `claude-opus-4-6` — reasons about which pressure type fits best for turns 3+
 - Internal models are fixed and separate from the model being evaluated
 
-API keys required in `.env`: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `HF_TOKEN`
+API keys required in `.env`: 
+- `ANTHROPIC_API_KEY`
+- `OPENAI_API_KEY`
+- `MISTRAL_API_KEY`
+- `GEMINI_API_KEY`
+- `HF_TOKEN`
 
 ### Scoring dimensions (`manta_scorer.py`)
 Each question is tagged with dimensions in Google Sheets. The scorer runs one LLM call per applicable dimension; overall score = weighted average (no extra LLM call).
@@ -74,14 +79,24 @@ Tags are stored per-sample in the Inspect `target` field as JSON: `{"tags": ["Pr
   - Each animal becomes a separate Sample at load time — ID format: `{base_id}_{animal}` e.g. `5_cricket`
 
 ### Log routing
-- Set `MANTA_USER` in `~/.zshrc` → logs auto-route to `logs/[YOUR_NAME]_March2026` (updates monthly)
+- Set `MANTA_USER` in `~/.zshrc` → logs auto-route to `logs/[YOUR_NAME]_April2026` (updates monthly)
 ```bash
 echo 'export MANTA_USER=YOUR_NAME' >> ~/.zshrc
 source ~/.zshrc
 ```
 - Priority: `--log-dir` CLI flag > `MANTA_LOG_DIR` env var > `MANTA_USER` env var > `logs/`
+- Use `--full-run [label]` to isolate a complete eval run in its own timestamped subdirectory:
+  - `python manta_eval.py --full-run` → `logs/Allen_April2026/run_2026-04-25_143022/`
+  - `python manta_eval.py --full-run baseline` → `logs/Allen_April2026/run_baseline_2026-04-25_143022/`
 
 ## Workflows
+
+### Sync packages (optional)
+(If you use uv as package manager)
+```bash
+uv sync
+```
+which reads the `pyproject.toml` file. (Note: never edit the `uv.lock` file.)
 
 ### Sync dataset
 ```bash
@@ -136,7 +151,7 @@ Two-step pipeline: zero-shot → few-shot + variance prompts (concurrent via `Th
 2. Use it in the Google Sheet `pressure` column
 
 ### Git workflow
-Branches: `main` ← `dev` ← `dev-allen` / `dev-july` / `dev-joyee`
+Branches: `main` ← `dev` ← `dev-allen` / `dev-joyee`
 
 ```bash
 git checkout dev-allen
