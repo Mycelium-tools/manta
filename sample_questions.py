@@ -50,6 +50,7 @@ for i in range(len(train_data)):
     # Parse animals column: comma-separated string → list (empty list if blank)
     raw_animals = row.get('animals', '') or ''
     row['animals'] = [a.strip() for a in raw_animals.split(',') if a.strip()]
+    row['reference_answer'] = (row.get('reference_answer') or '').strip()
     all_questions.append(row)
 
 # All questions run as 3-turn; old keys kept for backwards compatibility

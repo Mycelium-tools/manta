@@ -1,0 +1,178 @@
+"""
+token_report.py — summarize token usage, cost, and run time across MANTA eval logs.
+
+Usage:
+    python token_report.py                        # auto-detects log dir via MANTA_USER
+    python token_report.py logs/Allen_April2026/  # specific directory
+    python token_report.py path/to/file.eval      # single file
+"""
+
+import os
+import sys
+from datetime import datetime
+from collections import defaultdict
+from inspect_ai.log import read_eval_log
+
+# Pricing per 1M tokens: (input $/1M, output $/1M)
+PRICING = {
+    "anthropic/claude-opus-4-6": (15.00, 75.00),
+    "anthropic/claude-sonnet-4-6": (3.00, 15.00),
+    "anthropic/claude-sonnet-4-20250514": (3.00, 15.00),
+    "anthropic/claude-haiku-4-5-20251001": (0.80, 4.00),
+    "openai/gpt-4o": (2.50, 10.00),
+    "openai/gpt-4o-mini": (0.15, 0.60),
+    "google/gemini-2.5-flash": (0.15, 0.60),
+    "mistral/mistral-large-latest": (2.00, 6.00),
+    "mistral/mistral-small-latest": (0.10, 0.30),
+}
+
+
+def get_log_dir():
+    if os.environ.get("MANTA_LOG_DIR"):
+        return os.environ["MANTA_LOG_DIR"]
+    if os.environ.get("MANTA_USER"):
+        month_year = datetime.now().strftime("%B%Y")
+        return f"logs/{os.environ['MANTA_USER']}_{month_year}"
+    return "logs"
+
+
+def find_eval_files(path):
+    if path.endswith(".eval") and os.path.isfile(path):
+        return [path]
+    files = []
+    for root, _, filenames in os.walk(path):
+        for fname in filenames:
+            if fname.endswith(".eval"):
+                files.append(os.path.join(root, fname))
+    return sorted(files)
+
+
+def get_price(model_name):
+    if model_name in PRICING:
+        return PRICING[model_name]
+    for key, price in PRICING.items():
+        if key in model_name or model_name in key:
+            return price
+    return None
+
+
+def fmt_tokens(n):
+    return f"{n:,}"
+
+
+def fmt_duration(seconds):
+    h = int(seconds // 3600)
+    m = int((seconds % 3600) // 60)
+    s = int(seconds % 60)
+    if h > 0:
+        return f"{h}h {m}m {s}s"
+    if m > 0:
+        return f"{m}m {s}s"
+    return f"{s}s"
+
+
+def parse_dt(val):
+    if val is None:
+        return None
+    if isinstance(val, datetime):
+        return val
+    try:
+        return datetime.fromisoformat(str(val))
+    except Exception:
+        return None
+
+
+def main():
+    target = sys.argv[1] if len(sys.argv) > 1 else get_log_dir()
+    eval_files = find_eval_files(target)
+
+    if not eval_files:
+        print(f"No .eval files found at: {target}")
+        return
+
+    model_tokens = defaultdict(lambda: {"input": 0, "output": 0, "total": 0})
+    all_starts = []
+    all_ends = []
+    total_working_secs = 0.0
+
+    for path in eval_files:
+        try:
+            log = read_eval_log(path, header_only=True)
+        except Exception as e:
+            print(f"  [warn] skipping {os.path.basename(path)}: {e}")
+            continue
+
+        for model_name, usage in (log.stats.model_usage or {}).items():
+            inp = usage.input_tokens or 0
+            out = usage.output_tokens or 0
+            model_tokens[model_name]["input"] += inp
+            model_tokens[model_name]["output"] += out
+            model_tokens[model_name]["total"] += inp + out
+
+        started = parse_dt(getattr(log.stats, "started_at", None))
+        completed = parse_dt(getattr(log.stats, "completed_at", None))
+        if started:
+            all_starts.append(started)
+        if completed:
+            all_ends.append(completed)
+        if started and completed:
+            total_working_secs += (completed - started).total_seconds()
+
+    if not model_tokens:
+        print("No token data found in logs.")
+        return
+
+    # Header
+    n = len(eval_files)
+    print(f"\nToken Usage Report — {target} ({n} log file{'s' if n != 1 else ''})")
+    if all_starts and all_ends:
+        wall_start = min(all_starts)
+        wall_end = max(all_ends)
+        wall_secs = (wall_end - wall_start).total_seconds()
+        print(f"Total wall-clock time : {fmt_duration(wall_secs)}  ({wall_start.strftime('%H:%M:%S')} → {wall_end.strftime('%H:%M:%S')} UTC)")
+        print(f"Total working time    : {fmt_duration(total_working_secs)}")
+    print()
+
+    COL_MODEL = 42
+    COL_NUM = 12
+    header = f"{'Model':<{COL_MODEL}} {'Input':>{COL_NUM}} {'Output':>{COL_NUM}} {'Total':>{COL_NUM}} {'I:O Ratio':>10} {'Est. Cost':>10}"
+    sep = "─" * len(header)
+    print(header)
+    print(sep)
+
+    total_input = total_output = total_all = 0
+    total_cost = 0.0
+    has_unknown_cost = False
+
+    for model_name, t in sorted(model_tokens.items()):
+        inp, out, tot = t["input"], t["output"], t["total"]
+        total_input += inp
+        total_output += out
+        total_all += tot
+
+        ratio = f"{inp / out:.1f}:1" if out > 0 else "n/a"
+
+        price = get_price(model_name)
+        if price:
+            cost = (inp / 1_000_000) * price[0] + (out / 1_000_000) * price[1]
+            total_cost += cost
+            cost_str = f"${cost:.2f}"
+        else:
+            cost_str = "n/a"
+            has_unknown_cost = True
+
+        name = model_name if len(model_name) <= COL_MODEL else model_name[:COL_MODEL - 1] + "…"
+        print(f"{name:<{COL_MODEL}} {fmt_tokens(inp):>{COL_NUM}} {fmt_tokens(out):>{COL_NUM}} {fmt_tokens(tot):>{COL_NUM}} {ratio:>10} {cost_str:>10}")
+
+    print(sep)
+    total_ratio = f"{total_input / total_output:.1f}:1" if total_output > 0 else "n/a"
+    total_cost_str = f"${total_cost:.2f}" + ("*" if has_unknown_cost else "")
+    print(f"{'TOTAL':<{COL_MODEL}} {fmt_tokens(total_input):>{COL_NUM}} {fmt_tokens(total_output):>{COL_NUM}} {fmt_tokens(total_all):>{COL_NUM}} {total_ratio:>10} {total_cost_str:>10}")
+
+    if has_unknown_cost:
+        print("\n* Cost estimate excludes models with unknown pricing.")
+    print()
+
+
+if __name__ == "__main__":
+    main()
