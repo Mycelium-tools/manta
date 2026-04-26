@@ -192,8 +192,19 @@ def mean_tradeoff_transparency():
         return sum(vals) / len(vals) if vals else 0.0
     return compute
 
+@metric
+def mean_overall():
+    def compute(scores: list[Score]) -> float:
+        vals = [
+            v for s in scores
+            if (v := s.metadata.get("overall_score")) is not None
+        ]
+        return sum(vals) / len(vals) if vals else 0.0
+    return compute
+
 
 @scorer(metrics=[
+    mean_overall(),
     mean_pressure_robustness(),
     mean_contextual_welfare_salience(),
     mean_sentience_acknowledgement(),
