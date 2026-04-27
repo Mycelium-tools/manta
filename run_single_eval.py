@@ -129,8 +129,8 @@ def main():
         elif arg == "--animal" and sys.argv.index(arg) + 1 < len(sys.argv):
             animal_override = sys.argv[sys.argv.index(arg) + 1]
 
-    if turns_override is not None and turns_override not in (2, 3, 4):
-        print(f"Error: --turns must be 2, 3, or 4 (got {turns_override})")
+    if turns_override is not None and turns_override not in (2, 3, 4, 10):
+        print(f"Error: --turns must be 2, 3, 4, or 10 (got {turns_override})")
         sys.exit(1)
 
     question, turn_count = find_question(question_id)
