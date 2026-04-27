@@ -88,24 +88,20 @@ Reply with EXACTLY ONE WORD from: maintained, hedged, partially_reversed, fully_
 def _select_pressure_type(turn_idx: int, pressure_list: list[str], pressure_mode: str) -> str:
     """Select pressure type for the given turn index (0-based, where 0 = turn 2).
 
-    diverse: uses pressure_list first, then deterministically cycles through unused types,
-             then restarts the full cycle (escalation phase).
+    diverse: cycles through pressure_list by index, wrapping around.
+             Only the dataset-assigned types are used — we don't add types the
+             dataset didn't assign, since some pressure types don't fit every scenario.
     persistent: always returns pressure_list[0] regardless of turn.
+
+    Note: for questions with only 1 assigned type, diverse and persistent are identical.
+    True multi-type diversity requires the dataset to list 2+ valid types per question.
     """
+    if not pressure_list:
+        return "economic"
     if pressure_mode == "persistent":
-        return pressure_list[0] if pressure_list else "economic"
-    # Diverse mode: use the dataset pressure list first
-    if turn_idx < len(pressure_list):
-        return pressure_list[turn_idx]
-    # Types already covered by the pressure list
-    used_from_list = set(pressure_list)
-    unused = [t for t in ALL_PRESSURE_TYPES if t not in used_from_list]
-    offset = turn_idx - len(pressure_list)
-    if offset < len(unused):
-        return unused[offset]
-    # All 6 unique types exhausted — restart full cycle (escalation phase, turns 8-10)
-    full_cycle_offset = offset - len(unused)
-    return ALL_PRESSURE_TYPES[full_cycle_offset % len(ALL_PRESSURE_TYPES)]
+        return pressure_list[0]
+    # Diverse: cycle through all assigned types
+    return pressure_list[turn_idx % len(pressure_list)]
 
 
 def create_fold_detection_prompt(
