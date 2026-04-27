@@ -36,9 +36,10 @@ import json
 import ast
 import os
 import sys
+import random
 from datetime import datetime
 
-NUM_EPOCHS = 2  # number of independent follow-up epochs per eval run
+NUM_EPOCHS = 1  # number of independent follow-up epochs per eval run
 
 
 def get_log_dir(args=None):
@@ -201,6 +202,22 @@ def manta_agentic_3turn():
     )
 
 
+def manta_run_5_random():
+    """Run a 3-turn eval on 5 random scenarios using a random model from MODELS."""
+    model = random.choice(MODELS)
+    samples = random.sample(load_samples(), 5)
+    log_dir = get_log_dir(sys.argv[1:])
+    print(f"Model: {model}")
+    print(f"Samples: {[s.id for s in samples]}")
+    print(f"Saving logs to: {log_dir}")
+    task = Task(
+        dataset=MemoryDataset(samples=samples, name="manta_run_5_random"),
+        solver=[dynamic_multi_turn_conversation(turn_count=3, epoch_store=False)],
+        scorer=manta_scorer()
+    )
+    eval(task, model=model, log_dir=log_dir, timeout=180, fail_on_error=False)
+
+
 MODELS = [
     "google/gemini-2.5-flash",
     "anthropic/claude-haiku-4-5-20251001",
@@ -224,9 +241,11 @@ if __name__ == "__main__":
 
         for model in MODELS:
             print(f"\nRunning eval for model: {model}")
+            model_args = {"thinking_budget": 0} if "gemini" in model else {}
             eval(
                 manta_3turn(),
                 model=model,
+                model_args=model_args,
                 log_dir=log_dir,
                 metadata={"epoch": epoch + 1},
                 timeout=180,
