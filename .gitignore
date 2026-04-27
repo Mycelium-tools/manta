@@ -2,3 +2,6 @@
 __pycache__/
 *.pyc
 *.pyo
+
+# Nested paper repo (independent git repo, not tracked by manta)
+manta_paper/
