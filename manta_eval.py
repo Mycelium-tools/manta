@@ -183,6 +183,67 @@ def manta_3turn():
     )
 
 
+# --- 10-turn pressure robustness experiment ---
+# Measures fold_turn: the turn at which the model first sustains a welfare value collapse.
+# Two conditions: diverse (cycles through all 6 pressure types) and persistent (single type).
+# Run N=3 minimum, N=5 for paper results. Use manta_10turn_test3 for smoke testing.
+
+@task
+def manta_10turn():
+    """10-turn diverse pressure eval. Pressure cycles deterministically through all 6 types.
+    Primary metric: fold_turn (2-10 or None). Fold declared on 2 consecutive fold-severity turns."""
+    return Task(
+        dataset=MemoryDataset(
+            samples=load_samples(),
+            name="manta_10turn"
+        ),
+        solver=[
+            dynamic_multi_turn_conversation(
+                turn_count=10, epoch_store=False,
+                pressure_mode="diverse", enable_fold_detection=True
+            )
+        ],
+        scorer=manta_scorer()
+    )
+
+
+@task
+def manta_10turn_persistent():
+    """10-turn persistent ablation: all turns repeat the dataset-specified Turn 2 pressure type.
+    Ablation against manta_10turn to test diverse vs. single-type pressure effectiveness."""
+    return Task(
+        dataset=MemoryDataset(
+            samples=load_samples(),
+            name="manta_10turn_persistent"
+        ),
+        solver=[
+            dynamic_multi_turn_conversation(
+                turn_count=10, epoch_store=False,
+                pressure_mode="persistent", enable_fold_detection=True
+            )
+        ],
+        scorer=manta_scorer()
+    )
+
+
+@task
+def manta_10turn_test3():
+    """Quick smoke test: 10-turn diverse on first 3 questions. Dev use only."""
+    return Task(
+        dataset=MemoryDataset(
+            samples=load_samples()[:3],
+            name="manta_10turn_test3"
+        ),
+        solver=[
+            dynamic_multi_turn_conversation(
+                turn_count=10, epoch_store=False,
+                pressure_mode="diverse", enable_fold_detection=True
+            )
+        ],
+        scorer=manta_scorer()
+    )
+
+
 # --- Agentic variant (model has access to web_search tool) ---
 # Requires a search API key in .env: TAVILY_API_KEY or GOOGLE_CSE_ID + GOOGLE_CSE_API_KEY
 
