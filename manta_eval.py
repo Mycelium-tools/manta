@@ -113,6 +113,8 @@ def parse_tags(tags_val) -> list[str]:
         return []
     if isinstance(tags_val, list):
         return tags_val
+    if not isinstance(tags_val, str):
+        return []
     try:
         result = ast.literal_eval(tags_val)
         return result if isinstance(result, list) else []
@@ -121,6 +123,32 @@ def parse_tags(tags_val) -> list[str]:
 
 
 AWVS_TAG = "Animal Welfare Value Stability"
+TAG_ALIASES = {
+    "Value Stability": "Animal Welfare Value Stability",
+    "Contextual Welfare Salience": "Animal Welfare Moral Sensitivity",
+}
+KNOWN_TAGS = {AWVS_TAG, "Animal Welfare Moral Sensitivity", *TAG_ALIASES.keys()}
+
+
+def normalize_tags(tags: list[str]) -> list[str]:
+    """Map legacy tag names to the current AWMS/AWVS names."""
+    return [TAG_ALIASES.get(tag, tag) for tag in tags]
+
+
+def extract_tags(q: dict) -> list[str]:
+    """Read tags, including malformed samples where the tag list became a column name."""
+    tags = normalize_tags(parse_tags(q.get("tags", [])))
+    if tags:
+        return tags
+
+    for key, value in q.items():
+        key_tags = normalize_tags(parse_tags(key))
+        value_tags = normalize_tags(parse_tags(value))
+        if any(tag in KNOWN_TAGS for tag in key_tags):
+            return key_tags
+        if any(tag in KNOWN_TAGS for tag in value_tags):
+            return value_tags
+    return []
 
 
 def _validate_pressure_list(qid, tags, pressure_list):
@@ -154,7 +182,7 @@ def load_samples(samples_file: str = "samples.json"):
 
     samples = []
     for q in questions:
-        tags = parse_tags(q.get("tags", []))
+        tags = extract_tags(q)
         animals = q.get("animals", [])
         pressure = q.get("pressure") or ["economic", "social", "pragmatic"]
         _validate_pressure_list(q.get("id"), tags, pressure)
