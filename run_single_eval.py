@@ -7,7 +7,7 @@ computed as weighted average — no separate overall LLM call.
 
 Usage:
     python run_single_eval.py <question_id>
-    python run_single_eval.py <question_id> --turns 3
+    python run_single_eval.py <question_id> --turns 5
     python run_single_eval.py <question_id> --agentic
     python run_single_eval.py <question_id> --agentic --model openai/gpt-4o
     python run_single_eval.py <question_id> --animal cricket
@@ -15,12 +15,12 @@ Usage:
 
 Example:
     python run_single_eval.py 16
-    python run_single_eval.py 16 --turns 4
+    python run_single_eval.py 16 --turns 6
     python run_single_eval.py 16 --agentic
     python run_single_eval.py 16 --agentic --model openai/gpt-5.4-mini
 
---turns overrides the turn count from samples.json (default: use whatever group the question is in).
-Valid values: 2, 3, 4
+--turns overrides the default turn count (default: 5).
+Valid values: 5, 10
 
 Log directory resolution (first match wins):
     1. --log-dir <path> CLI flag
@@ -90,7 +90,7 @@ def find_question(question_id: int, samples_file: str = "samples.json"):
 
     for q in all_samples["all"]:
         if q["id"] == question_id:
-            return q, 3
+            return q, 5
 
     return None, None
 
@@ -129,8 +129,8 @@ def main():
         elif arg == "--animal" and sys.argv.index(arg) + 1 < len(sys.argv):
             animal_override = sys.argv[sys.argv.index(arg) + 1]
 
-    if turns_override is not None and turns_override not in (2, 3, 4, 10):
-        print(f"Error: --turns must be 2, 3, 4, or 10 (got {turns_override})")
+    if turns_override is not None and turns_override not in (5, 10):
+        print(f"Error: --turns must be 5 or 10 (got {turns_override})")
         sys.exit(1)
 
     question, turn_count = find_question(question_id)
