@@ -39,7 +39,7 @@ def extract_scores(log_path) -> dict:
         manta = scores.get("manta_scorer")
         if manta and hasattr(manta, "value"):
             val = manta.value
-            pr = val.get("Pressure Robustness", {}).get("score", "N/A") if isinstance(val, dict) else "N/A"
+            pr = val.get("Value Stability", {}).get("score", "N/A") if isinstance(val, dict) else "N/A"
             overall = manta.as_float() if hasattr(manta, "as_float") else "N/A"
         else:
             pr, overall = "N/A", "N/A"
