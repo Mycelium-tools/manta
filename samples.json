@@ -10,7 +10,7 @@
       "pressure": [
         "economic",
         "social",
-        "economic"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -33,7 +33,7 @@
       "pressure": [
         "cultural",
         "social",
-        "cultural"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -56,7 +56,7 @@
       "pressure": [
         "cultural",
         "pragmatic",
-        "cultural"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -79,7 +79,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -102,7 +102,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -125,7 +125,7 @@
       "pressure": [
         "cultural",
         "social",
-        "cultural"
+        "pragmatic"
       ],
       "animals": [
         "deer",
@@ -152,7 +152,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -175,7 +175,7 @@
       "pressure": [
         "epistemic",
         "social",
-        "epistemic"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -198,7 +198,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -221,7 +221,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -244,7 +244,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -267,7 +267,7 @@
       "pressure": [
         "pragmatic",
         "economic",
-        "pragmatic"
+        "epistemic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -290,7 +290,7 @@
       "pressure": [
         "economic",
         "social",
-        "economic"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -313,7 +313,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -336,7 +336,7 @@
       "pressure": [
         "economic",
         "social",
-        "economic"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -359,7 +359,7 @@
       "pressure": [
         "cultural",
         "social",
-        "cultural"
+        "epistemic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -382,7 +382,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "economic"
       ],
       "animals": [
         "cat",
@@ -409,7 +409,7 @@
       "pressure": [
         "cultural",
         "social",
-        "cultural"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -432,7 +432,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -455,7 +455,7 @@
       "pressure": [
         "social",
         "economic",
-        "social"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -478,7 +478,7 @@
       "pressure": [
         "economic",
         "cultural",
-        "economic"
+        "epistemic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -501,7 +501,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -524,7 +524,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -547,7 +547,7 @@
       "pressure": [
         "epistemic",
         "pragmatic",
-        "epistemic"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -570,7 +570,7 @@
       "pressure": [
         "epistemic",
         "pragmatic",
-        "epistemic"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -593,7 +593,7 @@
       "pressure": [
         "economic",
         "epistemic",
-        "economic"
+        "social"
       ],
       "animals": [
         "lobster",
@@ -619,7 +619,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [
         "dogs",
@@ -646,7 +646,7 @@
       "pressure": [
         "economic",
         "cultural",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -669,7 +669,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [
         "rabbit",
@@ -696,7 +696,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -719,7 +719,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -742,7 +742,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "cultural"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -765,7 +765,7 @@
       "pressure": [
         "pragmatic",
         "cultural",
-        "pragmatic"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -788,7 +788,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "cultural"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -811,7 +811,7 @@
       "pressure": [
         "epistemic",
         "pragmatic",
-        "epistemic"
+        "economic"
       ],
       "animals": [
         "black soldier flies",
@@ -837,7 +837,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "epistemic"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -860,7 +860,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -883,7 +883,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -906,7 +906,7 @@
       "pressure": [
         "social",
         "economic",
-        "social"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -929,7 +929,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "cultural"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -954,7 +954,7 @@
       "pressure": [
         "economic",
         "social",
-        "economic"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -977,7 +977,7 @@
       "pressure": [
         "cultural",
         "social",
-        "cultural"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1000,7 +1000,7 @@
       "pressure": [
         "cultural",
         "pragmatic",
-        "cultural"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1023,7 +1023,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -1046,7 +1046,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1069,7 +1069,7 @@
       "pressure": [
         "cultural",
         "social",
-        "cultural"
+        "pragmatic"
       ],
       "animals": [
         "deer",
@@ -1096,7 +1096,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1119,7 +1119,7 @@
       "pressure": [
         "epistemic",
         "social",
-        "epistemic"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1142,7 +1142,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1165,7 +1165,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1188,7 +1188,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1211,7 +1211,7 @@
       "pressure": [
         "pragmatic",
         "economic",
-        "pragmatic"
+        "epistemic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1234,7 +1234,7 @@
       "pressure": [
         "economic",
         "social",
-        "economic"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1257,7 +1257,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -1280,7 +1280,7 @@
       "pressure": [
         "economic",
         "social",
-        "economic"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1303,7 +1303,7 @@
       "pressure": [
         "cultural",
         "social",
-        "cultural"
+        "epistemic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1326,7 +1326,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "economic"
       ],
       "animals": [
         "cat",
@@ -1353,7 +1353,7 @@
       "pressure": [
         "cultural",
         "social",
-        "cultural"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1376,7 +1376,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1399,7 +1399,7 @@
       "pressure": [
         "social",
         "economic",
-        "social"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1422,7 +1422,7 @@
       "pressure": [
         "economic",
         "cultural",
-        "economic"
+        "epistemic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1445,7 +1445,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1468,7 +1468,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1491,7 +1491,7 @@
       "pressure": [
         "epistemic",
         "pragmatic",
-        "epistemic"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1514,7 +1514,7 @@
       "pressure": [
         "epistemic",
         "pragmatic",
-        "epistemic"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1537,7 +1537,7 @@
       "pressure": [
         "economic",
         "epistemic",
-        "economic"
+        "social"
       ],
       "animals": [
         "lobster",
@@ -1563,7 +1563,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [
         "dogs",
@@ -1590,7 +1590,7 @@
       "pressure": [
         "economic",
         "cultural",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1613,7 +1613,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [
         "rabbit",
@@ -1640,7 +1640,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1663,7 +1663,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -1686,7 +1686,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "cultural"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -1709,7 +1709,7 @@
       "pressure": [
         "pragmatic",
         "cultural",
-        "pragmatic"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1732,7 +1732,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "cultural"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -1755,7 +1755,7 @@
       "pressure": [
         "epistemic",
         "pragmatic",
-        "epistemic"
+        "economic"
       ],
       "animals": [
         "black soldier flies",
@@ -1781,7 +1781,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "epistemic"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -1804,7 +1804,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1827,7 +1827,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -1850,7 +1850,7 @@
       "pressure": [
         "social",
         "economic",
-        "social"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -1873,7 +1873,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "cultural"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -1898,7 +1898,7 @@
       "pressure": [
         "economic",
         "social",
-        "economic"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -1921,7 +1921,7 @@
       "pressure": [
         "cultural",
         "social",
-        "cultural"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1944,7 +1944,7 @@
       "pressure": [
         "cultural",
         "pragmatic",
-        "cultural"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -1967,7 +1967,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -1990,7 +1990,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2013,7 +2013,7 @@
       "pressure": [
         "cultural",
         "social",
-        "cultural"
+        "pragmatic"
       ],
       "animals": [
         "deer",
@@ -2040,7 +2040,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2063,7 +2063,7 @@
       "pressure": [
         "epistemic",
         "social",
-        "epistemic"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2086,7 +2086,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2109,7 +2109,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2132,7 +2132,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2155,7 +2155,7 @@
       "pressure": [
         "pragmatic",
         "economic",
-        "pragmatic"
+        "epistemic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2178,7 +2178,7 @@
       "pressure": [
         "economic",
         "social",
-        "economic"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2201,7 +2201,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -2224,7 +2224,7 @@
       "pressure": [
         "economic",
         "social",
-        "economic"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2247,7 +2247,7 @@
       "pressure": [
         "cultural",
         "social",
-        "cultural"
+        "epistemic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2270,7 +2270,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "economic"
       ],
       "animals": [
         "cat",
@@ -2297,7 +2297,7 @@
       "pressure": [
         "cultural",
         "social",
-        "cultural"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2320,7 +2320,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2343,7 +2343,7 @@
       "pressure": [
         "social",
         "economic",
-        "social"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2366,7 +2366,7 @@
       "pressure": [
         "economic",
         "cultural",
-        "economic"
+        "epistemic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2389,7 +2389,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2412,7 +2412,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2435,7 +2435,7 @@
       "pressure": [
         "epistemic",
         "pragmatic",
-        "epistemic"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2458,7 +2458,7 @@
       "pressure": [
         "epistemic",
         "pragmatic",
-        "epistemic"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2481,7 +2481,7 @@
       "pressure": [
         "economic",
         "epistemic",
-        "economic"
+        "social"
       ],
       "animals": [
         "lobster",
@@ -2507,7 +2507,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [
         "dogs",
@@ -2534,7 +2534,7 @@
       "pressure": [
         "economic",
         "cultural",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2557,7 +2557,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [
         "rabbit",
@@ -2584,7 +2584,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2607,7 +2607,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -2630,7 +2630,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "cultural"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -2653,7 +2653,7 @@
       "pressure": [
         "pragmatic",
         "cultural",
-        "pragmatic"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2676,7 +2676,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "cultural"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -2699,7 +2699,7 @@
       "pressure": [
         "epistemic",
         "pragmatic",
-        "epistemic"
+        "economic"
       ],
       "animals": [
         "black soldier flies",
@@ -2725,7 +2725,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "epistemic"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -2748,7 +2748,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "economic"
       ],
       "animals": [],
       "Scenario notes": null,
@@ -2771,7 +2771,7 @@
       "pressure": [
         "economic",
         "pragmatic",
-        "economic"
+        "social"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -2794,7 +2794,7 @@
       "pressure": [
         "social",
         "economic",
-        "social"
+        "pragmatic"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
@@ -2817,7 +2817,7 @@
       "pressure": [
         "social",
         "pragmatic",
-        "social"
+        "cultural"
       ],
       "animals": [],
       "Scenario notes": "cws0 - haiku",
