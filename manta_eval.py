@@ -3,26 +3,27 @@ MANTA Inspect AI Evaluation
 =============================
 Dynamic multi-turn adversarial evaluation of animal welfare alignment.
 All questions run as 5-turn conversations (turn_count=5):
-  Turn 1: model answers initial question (CWS scored here)
-  Turn 2: anchor turn — welfare explicitly raised (not a pressure turn)
-  Turns 3–5: 3 adversarial pressure turns (VS scored here)
+  Turn 1: implicit-framing scenario; model answers (AWMS scored on this response)
+  Turn 2: explicit anchor — welfare made central, no adversarial pressure
+  Turns 3–5: 3 distinct pressure turns explicitly contesting welfare (AWVS scored on this slice)
 
-Scoring:
-- Uses manta_scorer (manta_scorer.py)
-- Dimensions: Value Stability (VS, final score) + Contextual Welfare Salience (CWS, metadata only)
-- CWS detected at Turn 1 only; if no detection, VS = 0.0 (skipped)
+Scoring (manta_scorer.py):
+- AWVS (Animal Welfare Value Stability, Rest Component 4) — headline metric, continuous 0.0-1.0
+- AWMS (Animal Welfare Moral Sensitivity, Rest Component 1) — secondary metric, snapped to {0.0, 0.5, 1.0}
+- AWMS does NOT gate AWVS; both are computed independently so the recognition-vs-resilience
+  correlation can be measured (see analysis/correlation_awms_awvs.py)
 
 Tasks:
-- manta_test5         — first 5 questions, 6-turn (quick sanity check)
-- manta_6turn         — all questions, 6-turn (primary eval)
-- manta_agentic_6turn — all questions, 6-turn, model can use web search
+- manta_test5         — first 5 questions, 5-turn (smoke test)
+- manta_5turn         — all questions, 5-turn (primary eval)
+- manta_agentic_5turn — all questions, 5-turn, model can use web search
 
 Usage:
-    # Quick test
+    # Smoke test
     inspect eval manta_eval.py@manta_test5 --model anthropic/claude-sonnet-4-6
 
     # Full eval
-    inspect eval manta_eval.py@manta_6turn --model anthropic/claude-sonnet-4-6
+    inspect eval manta_eval.py@manta_5turn --model anthropic/claude-sonnet-4-6
 
     # Run all models across NUM_EPOCHS epochs
     python manta_eval.py
@@ -40,6 +41,12 @@ import os
 import sys
 import random
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
+
+if os.environ.get("GROK_API_KEY") and not os.environ.get("XAI_API_KEY"):
+    os.environ["XAI_API_KEY"] = os.environ["GROK_API_KEY"]
 
 NUM_EPOCHS = 1  # number of independent follow-up epochs per eval run
 
@@ -113,6 +120,26 @@ def parse_tags(tags_val) -> list[str]:
         return []
 
 
+AWVS_TAG = "Animal Welfare Value Stability"
+
+
+def _validate_pressure_list(qid, tags, pressure_list):
+    """Each AWVS-tagged question must list exactly 3 distinct pressure types
+    (one per pressure turn: Turn 3, 4, 5). Raises ValueError naming the offending qid."""
+    if AWVS_TAG not in tags:
+        return
+    if len(pressure_list) != 3:
+        raise ValueError(
+            f"Question {qid}: AWVS-tagged samples must have exactly 3 pressure types "
+            f"(got {len(pressure_list)}: {pressure_list})"
+        )
+    if len(set(pressure_list)) != 3:
+        raise ValueError(
+            f"Question {qid}: AWVS-tagged samples must have 3 DISTINCT pressure types "
+            f"(got {pressure_list} with duplicates)"
+        )
+
+
 def load_samples(samples_file: str = "samples.json"):
     """
     Load all questions from samples.json and convert to Inspect AI Sample objects.
@@ -120,7 +147,7 @@ def load_samples(samples_file: str = "samples.json"):
     Returns:
         List of Inspect AI Sample objects
     """
-    with open(samples_file, "r") as f:
+    with open(samples_file, "r", encoding="utf-8") as f:
         all_samples = json.load(f)
 
     questions = all_samples["all"]
@@ -129,10 +156,12 @@ def load_samples(samples_file: str = "samples.json"):
     for q in questions:
         tags = parse_tags(q.get("tags", []))
         animals = q.get("animals", [])
+        pressure = q.get("pressure") or ["economic", "social", "pragmatic"]
+        _validate_pressure_list(q.get("id"), tags, pressure)
         base_metadata = {
             "tags": tags,
             "language": q.get("language", "en"),
-            "pressure": q.get("pressure") or ["economic", "economic"],
+            "pressure": pressure,
             "reference_answer": q.get("reference_answer", ""),
         }
         if animals:
@@ -157,7 +186,7 @@ def load_samples(samples_file: str = "samples.json"):
 
 @task
 def manta_test5():
-    """Quick 6-turn eval on the first 5 questions from samples.json."""
+    """Smoke 5-turn eval on the first 5 questions from samples.json."""
     return Task(
         dataset=MemoryDataset(
             samples=load_samples()[:5],
@@ -171,13 +200,13 @@ def manta_test5():
 
 
 @task
-def manta_6turn():
-    """MANTA 6-turn evaluation (all questions from samples.json).
-    Turn 1: initial answer (CWS). Turn 2: anchor. Turns 3–5: 3 pressure turns (VS)."""
+def manta_5turn():
+    """MANTA 5-turn evaluation (all questions from samples.json).
+    Turn 1: initial answer (AWMS). Turn 2: anchor. Turns 3-5: 3 pressure turns (AWVS)."""
     return Task(
         dataset=MemoryDataset(
             samples=load_samples(),
-            name="manta_6turn"
+            name="manta_5turn"
         ),
         solver=[
             dynamic_multi_turn_conversation(turn_count=5, epoch_store=False)
@@ -251,12 +280,12 @@ def manta_10turn_test3():
 # Requires a search API key in .env: TAVILY_API_KEY or GOOGLE_CSE_ID + GOOGLE_CSE_API_KEY
 
 @task
-def manta_agentic_6turn():
-    """Agentic 6-turn eval — model can use web search."""
+def manta_agentic_5turn():
+    """Agentic 5-turn eval — model can use web search."""
     return Task(
         dataset=MemoryDataset(
             samples=load_samples(),
-            name="manta_agentic_6turn"
+            name="manta_agentic_5turn"
         ),
         solver=[
             use_tools([web_search()]),
@@ -267,18 +296,35 @@ def manta_agentic_6turn():
 
 
 
+# Smoke-test models for the methodology-lock phase.
+# Restore the full list (Haiku, Gemini, GPT, DeepSeek, Mistral, Llama) for paper-grade runs.
 MODELS = [
-    "google/gemini-2.5-flash",
-    "anthropic/claude-haiku-4-5-20251001",
-    "anthropic/claude-sonnet-4-6",
-    "openai/gpt-5.4-nano-2026-03-17",
     "grok/grok-4-1-fast",
-    "openai-api/deepseek/deepseek-chat",
-    "mistral/mistral-small-2603",
-    "openrouter/meta-llama/llama-3.1-8b-instruct"
+    "anthropic/claude-sonnet-4-6",
 ]
 
+
+def validate_environment(models: list[str]) -> None:
+    """Fail fast for credentials required by the configured eval pipeline."""
+    missing = []
+    if any(model.startswith("anthropic/") for model in models):
+        missing.append("ANTHROPIC_API_KEY")
+    if any(model.startswith("grok/") for model in models):
+        missing.append("XAI_API_KEY or GROK_API_KEY")
+    # Follow-up generation and the default scorer panel currently use Anthropic.
+    if "ANTHROPIC_API_KEY" not in os.environ:
+        missing.append("ANTHROPIC_API_KEY")
+
+    missing = list(dict.fromkeys(missing))
+    if missing:
+        raise RuntimeError(
+            "Missing required API credentials: "
+            + ", ".join(missing)
+            + ". Add them to .env or export them before running manta_eval.py."
+        )
+
 if __name__ == "__main__":
+    validate_environment(MODELS)
     log_dir = get_log_dir(sys.argv[1:])
     print(f"Saving logs to: {log_dir}")
 
@@ -292,7 +338,7 @@ if __name__ == "__main__":
             print(f"\nRunning eval for model: {model}")
             model_args = {"thinking_budget": 0} if "gemini" in model else {}
             eval(
-                manta_6turn(),
+                manta_5turn(),
                 model=model,
                 model_args=model_args,
                 log_dir=log_dir,

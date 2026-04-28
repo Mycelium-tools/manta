@@ -65,7 +65,7 @@ samples = {
 with open('samples.json', 'w') as f:
     json.dump(samples, f, indent=2)
 
-print(f"\n✓ Saved samples to samples.json")
+print("\nSaved samples to samples.json")
 
 # Show one example
 print(f"\n{'='*60}")
