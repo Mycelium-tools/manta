@@ -1,0 +1,50 @@
+flowchart LR
+    subgraph DS[Dataset]
+        Q[Questions<br/>+ pressure types<br/>+ tags]
+    end
+
+    subgraph SOL[Solver: dynamic_multiturn_solver.py]
+        S1[create_welfare_<br/>salience_prompt<br/>Phase 1 bait]
+        S2[create_followup_<br/>prompt<br/>Phase 2 pushback]
+    end
+
+    subgraph GEN[Follow-up generator]
+        H[Haiku 4.5<br/>writes follow-ups]
+    end
+
+    subgraph EVAL[Model under test]
+        MUT[Sonnet / GPT-4o /<br/>etc.]
+    end
+
+    subgraph JUDGE[Judges]
+        RC[Recognition<br/>classifier<br/>binary]
+        AS[Argument-strength<br/>scorer<br/>0-1]
+    end
+
+    subgraph SCORE[Scoring: manta_scorer.py]
+        CWS[CWS<br/>= linear in k]
+        PR[PR<br/>= mean s_i]
+        M["MANTA<br/>= √CWS × PR"]
+    end
+
+    Q --> S1
+    Q --> S2
+    S1 --> H
+    S2 --> H
+    H --> MUT
+    MUT --> RC
+    MUT --> AS
+    RC --> CWS
+    AS --> PR
+    CWS --> M
+    PR --> M
+
+    classDef data fill:#fef3c7,stroke:#d97706,color:#000
+    classDef code fill:#dbeafe,stroke:#2563eb,color:#000
+    classDef model fill:#fce7f3,stroke:#be185d,color:#000
+    classDef out fill:#d1fae5,stroke:#059669,color:#000
+
+    class Q data
+    class S1,S2 code
+    class H,MUT,RC,AS model
+    class CWS,PR,M out

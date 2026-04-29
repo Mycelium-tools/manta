@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "datasets>=4.4.1",
     "gql<4",
     "inspect-ai>=0.3.212",
     "ipywidgets>=8.1.8",
@@ -18,6 +19,9 @@ dependencies = [
     "modal>=1.4.2",
     "matplotlib>=3.10.8",
     "anthropic>=0.97.0",
+    "xai-sdk>=1.11.0",
+    "google-genai>=1.73.1",
+    "mistralai>=2.4.3",
 ]
 
 [tool.uv.sources]
