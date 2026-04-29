@@ -329,15 +329,27 @@ def manta_agentic_5turn():
 MODELS = [
     "grok/grok-4-1-fast",
     "anthropic/claude-sonnet-4-6",
+    "openai/gpt-5.4-nano-2026-03-17"
 ]
+
+# MODELS = [
+#     "google/gemini-2.5-flash",
+#     "anthropic/claude-haiku-4-5-20251001",
+#     "anthropic/claude-sonnet-4-6",
+#     "openai/gpt-5.4-nano-2026-03-17",
+#     "grok/grok-4-1-fast",
+#     "openai-api/deepseek/deepseek-chat",
+#     "mistral/mistral-small-2603",
+#     "openrouter/meta-llama/llama-3.1-8b-instruct"
+# ]
 
 
 def validate_environment(models: list[str]) -> None:
     """Fail fast for credentials required by the configured eval pipeline."""
     missing = []
-    if any(model.startswith("anthropic/") for model in models):
+    if any(model.startswith("anthropic/") for model in models) and not os.environ.get("ANTHROPIC_API_KEY"):
         missing.append("ANTHROPIC_API_KEY")
-    if any(model.startswith("grok/") for model in models):
+    if any(model.startswith("grok/") for model in models) and not os.environ.get("XAI_API_KEY") and not os.environ.get("GROK_API_KEY"):
         missing.append("XAI_API_KEY or GROK_API_KEY")
     # Follow-up generation and the default scorer panel currently use Anthropic.
     if "ANTHROPIC_API_KEY" not in os.environ:
