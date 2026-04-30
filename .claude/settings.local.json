@@ -9,7 +9,8 @@
       "PowerShell(tail *)",
       "PowerShell(powershell -ExecutionPolicy ByPass -c \"irm https://astral.sh/uv/install.ps1 | iex\" 2>&1 | Select-Object -Last 10)",
       "PowerShell(uv sync *)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(python3 *)"
     ]
   }
 }
