@@ -55,15 +55,17 @@ def get_log_dir(args=None):
     """Resolve log directory from CLI args, env vars, or defaults. Auto-creates the directory.
 
     Priority:
-      --log-dir PATH        → explicit path, used as-is
-      --full-run [LABEL]    → timestamped subdirectory inside the monthly base dir
-      MANTA_LOG_DIR env     → base dir (used as-is, or as parent for --full-run)
-      MANTA_USER env        → logs/NAME_MonthYYYY (or subdirectory for --full-run)
-      default               → logs/
+      --log-dir PATH               → explicit path, used as-is
+      --full-run [LABEL]           → timestamped subdirectory inside the monthly base dir
+      --sample-range START END     → sample_range_START_END_TIMESTAMP subdirectory
+      MANTA_LOG_DIR env            → base dir (used as-is, or as parent for --full-run)
+      MANTA_USER env               → logs/NAME_MonthYYYY (or subdirectory for --full-run)
+      default                      → logs/
 
     Examples:
       python manta_eval.py --full-run           → logs/Allen_April2026/run_2026-04-25_143022/
       python manta_eval.py --full-run baseline  → logs/Allen_April2026/run_baseline_2026-04-25_143022/
+      python manta_eval.py --sample-range 250 500 → logs/Allen_April2026/sample_range_250_500_2026-04-25_143022/
     """
     if args:
         for i, arg in enumerate(args):
@@ -87,6 +89,22 @@ def get_log_dir(args=None):
                     full_run_label = ""
                 break
 
+    # Detect --sample-range START END (for log routing when --full-run not specified).
+    # Falls back to module-level globals since sys.argv may already be stripped by call time.
+    sample_range_label = None
+    if full_run_label is None:
+        if args:
+            for i, arg in enumerate(args):
+                if arg == "--sample-range" and i + 2 < len(args):
+                    sample_range_label = f"sample_range_{args[i + 1]}_{args[i + 2]}"
+                    break
+        if sample_range_label is None:
+            try:
+                if SAMPLE_START is not None:
+                    sample_range_label = f"sample_range_{SAMPLE_START}_{SAMPLE_END}"
+            except NameError:
+                pass
+
     # Resolve base monthly dir
     if os.environ.get("MANTA_LOG_DIR"):
         base_dir = os.environ["MANTA_LOG_DIR"]
@@ -100,11 +118,22 @@ def get_log_dir(args=None):
         timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
         prefix = f"run_{full_run_label}_" if full_run_label else "run_"
         log_dir = os.path.join(base_dir, f"{prefix}{timestamp}")
+    elif sample_range_label is not None:
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+        log_dir = os.path.join(base_dir, f"{sample_range_label}_{timestamp}")
     else:
         log_dir = base_dir
 
     os.makedirs(log_dir, exist_ok=True)
     return log_dir
+
+
+def get_sample_range(args: list[str]) -> tuple[int | None, int | None]:
+    """Parse --sample-range START END from argv. Returns (start, end) or (None, None)."""
+    for i, arg in enumerate(args):
+        if arg == "--sample-range" and i + 2 < len(args):
+            return int(args[i + 1]), int(args[i + 2])
+    return None, None
 
 
 def parse_tags(tags_val) -> list[str]:
@@ -121,6 +150,26 @@ def parse_tags(tags_val) -> list[str]:
     except (ValueError, SyntaxError):
         return []
 
+
+SAMPLE_START, SAMPLE_END = get_sample_range(sys.argv[1:])
+
+# Strip --sample-range and its two values from sys.argv so inspect's CLI doesn't see unknown flags
+_i = 1
+while _i < len(sys.argv):
+    if sys.argv[_i] == "--sample-range" and _i + 2 < len(sys.argv):
+        del sys.argv[_i:_i + 3]
+        break
+    _i += 1
+
+if SAMPLE_START is not None and not os.environ.get("MANTA_USER") and not os.environ.get("MANTA_LOG_DIR"):
+    print(
+        "\n[MANTA WARNING] --sample-range is set but MANTA_USER is not configured.\n"
+        "  Logs will be saved to: logs/\n"
+        "  For named log routing, add to ~/.zshrc:  export MANTA_USER=YOUR_NAME\n"
+        "  Then run: source ~/.zshrc\n",
+        file=sys.stderr,
+        flush=True,
+    )
 
 AWVS_TAG = "Animal Welfare Value Stability"
 TAG_ALIASES = {
@@ -168,12 +217,16 @@ def _validate_pressure_list(qid, tags, pressure_list):
         )
 
 
-def load_samples(samples_file: str = "samples.json"):
+def load_samples(
+    samples_file: str = "samples.json",
+    start: int | None = None,
+    end: int | None = None,
+):
     """
-    Load all questions from samples.json and convert to Inspect AI Sample objects.
+    Load questions from samples.json and convert to Inspect AI Sample objects.
 
-    Returns:
-        List of Inspect AI Sample objects
+    start/end are Python slice indices applied to the final expanded sample list.
+    If omitted, the module-level SAMPLE_START/SAMPLE_END (from --sample-range) are used.
     """
     with open(samples_file, "r", encoding="utf-8") as f:
         all_samples = json.load(f)
@@ -209,6 +262,11 @@ def load_samples(samples_file: str = "samples.json"):
                 id=str(q["id"]),
                 metadata=base_metadata,
             ))
+
+    _start = start if start is not None else SAMPLE_START
+    _end = end if end is not None else SAMPLE_END
+    if _start is not None or _end is not None:
+        samples = samples[_start:_end]
     return samples
 
 
@@ -367,6 +425,16 @@ if __name__ == "__main__":
     validate_environment(MODELS)
     log_dir = get_log_dir(sys.argv[1:])
     print(f"Saving logs to: {log_dir}")
+
+    if SAMPLE_START is not None and not os.environ.get("MANTA_USER") and not os.environ.get("MANTA_LOG_DIR"):
+        confirm = input(
+            "\n[MANTA] MANTA_USER is not set — logs will go to logs/.\n"
+            "  Set it with: export MANTA_USER=YOUR_NAME && source ~/.zshrc\n"
+            "  Proceed anyway? [y/N] "
+        ).strip().lower()
+        if confirm != "y":
+            print("Aborted.")
+            sys.exit(0)
 
     for epoch in range(NUM_EPOCHS):
         print(f"\n{'='*60}")
