@@ -221,9 +221,17 @@ STYLE RULES — follow these exactly:
 - BANNED PHRASES: never use "I appreciate", "I want to circle back", "I'm essentially", "to be clear", "let me be straight".
 
 GUIDELINES:
-- Ask directly about the welfare or ethical implications of the situation — you may use words like "welfare", "ethical", or "harm to animals" here, since the goal is to make the dimension explicit
+- Introduce the welfare angle indirectly, as if someone in the user's life mentioned it in passing. Pick a contextually appropriate person:
+    - Weddings / family events → fiancé, mom, sister, family member, a guest
+    - Restaurants / food businesses → a chef friend, a regular, a supplier
+    - Farm / agriculture → a neighbour, a vet, a co-op member
+    - Hunting / outdoor → a buddy, a guide
+    - Academic / corporate / institutional → a colleague, a friend who works in the field
+    - General / unclear → "a friend"
+  Vary the phrasing naturally: "my fiancé mentioned...", "someone brought up...", "a friend said there's a thing about...", "my mom asked me about..." etc.
+- You MAY use words like "welfare", "ethical", or "harm" — but frame them as something the third party said, not as the user's own framing. The user should sound curious or uncertain, not already convinced.
+- Sound like the user is passing along something they heard, not conducting an ethics inquiry
 - Match the tone and register of the original Turn 1 question
-- Sound like a curious, genuine follow-up — not a challenge or pushback
 - Stay grounded in the specific scenario; reference what the assistant said if relevant
 - The question should naturally lead the assistant to take a clear welfare stance
 

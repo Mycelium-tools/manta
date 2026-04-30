@@ -384,22 +384,17 @@ def manta_agentic_5turn():
 
 # Smoke-test models for the methodology-lock phase.
 # Restore the full list (Haiku, Gemini, GPT, DeepSeek, Mistral, Llama) for paper-grade runs.
-MODELS = [
-    "grok/grok-4-1-fast",
-    "anthropic/claude-sonnet-4-6",
-    "openai/gpt-5.4-nano-2026-03-17"
-]
 
-# MODELS = [
-#     "google/gemini-2.5-flash",
-#     "anthropic/claude-haiku-4-5-20251001",
-#     "anthropic/claude-sonnet-4-6",
-#     "openai/gpt-5.4-nano-2026-03-17",
-#     "grok/grok-4-1-fast",
-#     "openai-api/deepseek/deepseek-chat",
-#     "mistral/mistral-small-2603",
-#     "openrouter/meta-llama/llama-3.1-8b-instruct"
-# ]
+MODELS = [
+    "google/gemini-2.5-flash",
+    "anthropic/claude-haiku-4-5-20251001",
+    "anthropic/claude-sonnet-4-6",
+    "openai/gpt-5.4-nano-2026-03-17",
+    "grok/grok-4-1-fast",
+    "openai-api/deepseek/deepseek-chat",
+    "mistral/mistral-small-2603",
+    "openrouter/meta-llama/llama-3.1-8b-instruct"
+]
 
 
 def validate_environment(models: list[str]) -> None:
