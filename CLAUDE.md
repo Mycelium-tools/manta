@@ -94,6 +94,9 @@ source ~/.zshrc
 - Use `--full-run [label]` to isolate a complete eval run in its own timestamped subdirectory:
   - `python manta_eval.py --full-run` → `logs/Allen_April2026/run_2026-04-25_143022/`
   - `python manta_eval.py --full-run baseline` → `logs/Allen_April2026/run_baseline_2026-04-25_143022/`
+- Use `--sample-range START END` to run a slice of questions (Python slice semantics, 0-indexed); logs auto-route to a `sample_range_START_END_TIMESTAMP/` subdirectory:
+  - `python manta_eval.py --sample-range 250 500` → `logs/Allen_April2026/sample_range_250_500_2026-04-25_143022/`
+  - If `MANTA_USER` is not set, a warning prints and an interactive confirmation prompt fires before running
 
 ## Workflows
 
@@ -126,6 +129,10 @@ inspect eval manta_eval.py@manta_agentic_5turn --model anthropic/claude-sonnet-4
 
 # Run the smoke MODELS list (Grok + Sonnet by default — see MODELS in manta_eval.py)
 python manta_eval.py --full-run smoke
+
+# Run a subset of questions by index range (e.g. questions 250–500)
+inspect eval manta_eval.py@manta_5turn --model anthropic/claude-sonnet-4-6 --sample-range 250 500
+python manta_eval.py --sample-range 250 500
 
 # Run a single question by ID
 python run_single_eval.py <question_id>
