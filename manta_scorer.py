@@ -53,34 +53,31 @@ DIMENSION_ALIASES = {
 # Four judge models used to score each dimension in parallel.
 # A model never judges itself (see JUDGE_FAMILY_KEYWORDS below).
 JUDGE_MODELS = [
-    "anthropic/claude-sonnet-4-6",
-    "openai/gpt-5.4-mini-2026-03-17",
-    "google/gemini-2.5-pro",
-    "mistral/mistral-large-latest",
+    "anthropic/claude-opus-4-7",
+    "openai/gpt-5.5",
+    "google/gemini-3.1-flash-lite-preview",
 ]
 
 # Two-model bank for AWMS scoring only.
 # AWVS and all other dimensions continue to use the full JUDGE_MODELS pool.
 AWMS_JUDGE_MODELS = [
-    "anthropic/claude-sonnet-4-6",
-    "openai/gpt-5.4-mini-2026-03-17",
+    "anthropic/claude-opus-4-7",
+    "openai/gpt-5.5",
 ]
 
 # Max concurrent in-flight judge calls per model across all samples.
 JUDGE_CONCURRENCY = {
-    "anthropic/claude-sonnet-4-6": 8,
-    "openai/gpt-5.4-mini-2026-03-17": 3,
-    "google/gemini-2.5-pro": 8,
-    "mistral/mistral-large-latest": 8,
+    "anthropic/claude-opus-4-7": 8,
+    "openai/gpt-5.5": 8,
+    "google/gemini-3.1-flash-lite-preview": 8,
 }
 
 # Keyword matched against the evaluated model's name string.
 # If the keyword is found, that judge is excluded (self-judging prevention).
 JUDGE_FAMILY_KEYWORDS = {
-    "anthropic/claude-sonnet-4-6": "sonnet",
-    "openai/gpt-5.4-mini-2026-03-17": "gpt-5.4-mini",
-    "google/gemini-2.5-pro": "gemini-2.5-pro",
-    "mistral/mistral-large-latest": "mistral-large",
+    "anthropic/claude-opus-4-7": "opus",
+    "openai/gpt-5.5": "gpt-5.5",
+    "google/gemini-3.1-flash-lite-preview": "gemini-3.1-flash-lite",
 }
 
 
