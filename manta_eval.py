@@ -381,19 +381,15 @@ def manta_agentic_5turn():
     )
 
 
-
-# Smoke-test models for the methodology-lock phase.
-# Restore the full list (Haiku, Gemini, GPT, DeepSeek, Mistral, Llama) for paper-grade runs.
-
 MODELS = [
-    "google/gemini-2.5-flash",
-    "anthropic/claude-haiku-4-5-20251001",
+    "google/gemini-3.1-flash-lite-preview",
+    "anthropic/claude-opus-4-7",
     "anthropic/claude-sonnet-4-6",
-    "openai/gpt-5.4-nano-2026-03-17",
-    "grok/grok-4-1-fast",
-    "openai-api/deepseek/deepseek-chat",
+    "openai/gpt-5.5",
+    "grok/grok-4.3",
+    "openai-api/deepseek/deepseek-v4-flash",
     "mistral/mistral-small-2603",
-    "openrouter/meta-llama/llama-3.1-8b-instruct"
+    "openrouter/meta-llama/llama-3.3-8b-instruct"
 ]
 
 
