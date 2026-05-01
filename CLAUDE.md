@@ -98,6 +98,40 @@ source ~/.zshrc
   - `python manta_eval.py --sample-range 250 500` → `logs/Allen_April2026/sample_range_250_500_2026-04-25_143022/`
   - If `MANTA_USER` is not set, a warning prints and an interactive confirmation prompt fires before running
 
+## New machine setup
+
+1. **Pull the repo** and ensure Python 3.12+ is installed.
+
+2. **Install dependencies:**
+   ```bash
+   uv sync
+   ```
+
+3. **Create `.env`** in the project root (this file is gitignored — recreate manually):
+   ```
+   ANTHROPIC_API_KEY=...
+   OPENAI_API_KEY=...
+   MISTRAL_API_KEY=...
+   GEMINI_API_KEY=...
+   HF_TOKEN=...
+   ```
+
+4. **Set your username** for log routing:
+   ```bash
+   echo 'export MANTA_USER=YOUR_NAME' >> ~/.zshrc
+   source ~/.zshrc
+   ```
+
+5. **Sync the dataset:**
+   ```bash
+   python sync_questions_to_hf.py
+   ```
+
+6. **Smoke test:**
+   ```bash
+   inspect eval manta_eval.py@manta_test5 --model anthropic/claude-sonnet-4-6
+   ```
+
 ## Workflows
 
 ### Sync packages (optional)
