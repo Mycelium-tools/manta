@@ -389,7 +389,7 @@ MODELS = [
     "grok/grok-4.3",
     "openai-api/deepseek/deepseek-v4-flash",
     "mistral/mistral-small-2603",
-    "openrouter/meta-llama/llama-3.3-8b-instruct"
+    "openrouter/meta-llama/llama-3.3-70b-instruct"
 ]
 
 
@@ -435,11 +435,9 @@ if __name__ == "__main__":
 
         for model in MODELS:
             print(f"\nRunning eval for model: {model}")
-            model_args = {"thinking_budget": 0} if "gemini" in model else {}
             eval(
                 manta_5turn(),
                 model=model,
-                model_args=model_args,
                 log_dir=log_dir,
                 metadata={"epoch": epoch + 1},
                 timeout=180,

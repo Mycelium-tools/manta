@@ -384,11 +384,11 @@ def _snap_to_awms_anchor(value: float) -> float:
 
 def select_awms_judge(evaluated_model_name: str) -> str:
     """Return the single judge to use for AWMS scoring.
-    Defaults to Claude; switches to GPT if any Claude model is being evaluated."""
+    Defaults to Opus; switches to GPT-5.5 if any Claude model is being evaluated."""
     name_lower = evaluated_model_name.lower()
     if "claude" in name_lower or "anthropic" in name_lower:
-        return "openai/gpt-5.4-mini-2026-03-17"
-    return "anthropic/claude-sonnet-4-6"
+        return "openai/gpt-5.5"
+    return "anthropic/claude-opus-4-7"
 
 
 def parse_score_value(response_text: str) -> float:
