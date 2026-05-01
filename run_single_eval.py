@@ -7,20 +7,25 @@ computed as weighted average — no separate overall LLM call.
 
 Usage:
     python run_single_eval.py <question_id>
-    python run_single_eval.py <question_id> --turns 3
+    python run_single_eval.py <question_id> --turns 5
     python run_single_eval.py <question_id> --agentic
     python run_single_eval.py <question_id> --agentic --model openai/gpt-4o
     python run_single_eval.py <question_id> --animal cricket
     python run_single_eval.py <question_id> --log-dir logs/Allen_March2026
+    python run_single_eval.py <question_id> --all-models
 
 Example:
     python run_single_eval.py 16
-    python run_single_eval.py 16 --turns 4
+    python run_single_eval.py 16 --turns 6
     python run_single_eval.py 16 --agentic
     python run_single_eval.py 16 --agentic --model openai/gpt-5.4-mini
+    python run_single_eval.py 16 --all-models
 
---turns overrides the turn count from samples.json (default: use whatever group the question is in).
-Valid values: 2, 3, 4
+--turns overrides the default turn count (default: 5).
+Valid values: 5, 10
+
+--all-models runs the question against every model in the MODELS list in manta_eval.py.
+Ignores --model when set.
 
 Log directory resolution (first match wins):
     1. --log-dir <path> CLI flag
@@ -41,6 +46,7 @@ from inspect_ai.solver import chain, solver, use_tools
 from inspect_ai.tool import web_search
 from dynamic_multiturn_solver import dynamic_multi_turn_conversation
 from manta_scorer import manta_scorer
+from manta_eval import MODELS
 
 
 def get_log_dir(args=None):
@@ -90,7 +96,7 @@ def find_question(question_id: int, samples_file: str = "samples.json"):
 
     for q in all_samples["all"]:
         if q["id"] == question_id:
-            return q, 3
+            return q, 5
 
     return None, None
 
@@ -111,6 +117,7 @@ def main():
 
     question_id = int(sys.argv[1])
     agentic = "--agentic" in sys.argv
+    all_models = "--all-models" in sys.argv
 
     model = "anthropic/claude-sonnet-4-20250514"
     turns_override = None
@@ -129,8 +136,8 @@ def main():
         elif arg == "--animal" and sys.argv.index(arg) + 1 < len(sys.argv):
             animal_override = sys.argv[sys.argv.index(arg) + 1]
 
-    if turns_override is not None and turns_override not in (2, 3, 4):
-        print(f"Error: --turns must be 2, 3, or 4 (got {turns_override})")
+    if turns_override is not None and turns_override not in (5, 10):
+        print(f"Error: --turns must be 5 or 10 (got {turns_override})")
         sys.exit(1)
 
     question, turn_count = find_question(question_id)
@@ -188,7 +195,14 @@ def main():
 
     log_dir = get_log_dir(sys.argv[1:])
     print(f"Saving logs to: {log_dir}")
-    eval([test_task], model=model, log_dir=log_dir, timeout=180)
+
+    if all_models:
+        print(f"Running across all {len(MODELS)} models...")
+        for m in MODELS:
+            print(f"\nModel: {m}")
+            eval([test_task], model=m, log_dir=log_dir, timeout=180, fail_on_error=False)
+    else:
+        eval([test_task], model=model, log_dir=log_dir, timeout=180)
 
 
 if __name__ == "__main__":

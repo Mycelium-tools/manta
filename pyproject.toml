@@ -5,9 +5,9 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "datasets>=4.4.1",
     "gql<4",
     "inspect-ai>=0.3.212",
-    "inspect-evals>=0.3.102",
     "ipywidgets>=8.1.8",
     "nbformat>=5.10.4",
     "openai>=2.8.1",
@@ -18,16 +18,13 @@ dependencies = [
     "inspect-petri==3.0.4",
     "modal>=1.4.2",
     "matplotlib>=3.10.8",
-]
-
-[tool.uv]
-# Require that the package is available for macOS ARM and x86 (Intel).
-required-environments = [
-    "sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "anthropic>=0.97.0",
+    "xai-sdk>=1.11.0",
+    "google-genai>=1.73.1",
+    "mistralai>=2.4.3",
 ]
 
 [tool.uv.sources]
-inspect-evals = { git = "https://github.com/UKGovernmentBEIS/inspect_evals.git" }
 researchrepo = { git = "https://github.com/JoyeeChen/ResearchRepo.git" }
 
 [dependency-groups]

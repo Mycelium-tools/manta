@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__claude_ai_Consensus__search",
+      "PowerShell(Test-Path *)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\myisa\\\\MANTA - NeurIPS - Claude\\\\manta\" -Force | Where-Object { $_.Name -match \"venv|env|\\\\.python\" } | Select-Object Name, FullName)",
+      "PowerShell(conda env *)",
+      "PowerShell(pip show *)",
+      "PowerShell(tail *)",
+      "PowerShell(powershell -ExecutionPolicy ByPass -c \"irm https://astral.sh/uv/install.ps1 | iex\" 2>&1 | Select-Object -Last 10)",
+      "PowerShell(uv sync *)",
+      "Bash(git *)",
+      "Bash(python3 *)",
+      "Bash(python *)"
+    ]
+  }
+}
