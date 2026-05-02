@@ -15,10 +15,20 @@ from inspect_ai.log import read_eval_log
 
 # Pricing per 1M tokens: (input $/1M, output $/1M)
 PRICING = {
-    "anthropic/claude-opus-4-6": (15.00, 75.00),
+    # Evaluated models
+    "google/gemini-3.1-flash-lite-preview": (0.25, 1.50),
+    "anthropic/claude-opus-4-7": (5.00, 25.00),
     "anthropic/claude-sonnet-4-6": (3.00, 15.00),
+    "openai/gpt-5.5": (5.00, 30.00),
+    "grok/grok-4.3": (1.25, 2.50),
+    "openai-api/deepseek/deepseek-v4-flash": (0.14, 0.28),
+    "mistral/mistral-small-2603": (0.15, 0.60),
+    "openrouter/meta-llama/llama-3.3-70b-instruct": (0.10, 0.32),
+    # Internal pipeline models (pressure selector, follow-up writer, scorer)
+    "anthropic/claude-opus-4-6": (15.00, 75.00),
     "anthropic/claude-sonnet-4-20250514": (3.00, 15.00),
     "anthropic/claude-haiku-4-5-20251001": (0.80, 4.00),
+    # Legacy
     "openai/gpt-4o": (2.50, 10.00),
     "openai/gpt-4o-mini": (0.15, 0.60),
     "google/gemini-2.5-flash": (0.15, 0.60),
