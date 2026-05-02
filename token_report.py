@@ -104,6 +104,7 @@ def main():
     all_starts = []
     all_ends = []
     total_working_secs = 0.0
+    total_samples = 0
 
     for path in eval_files:
         try:
@@ -111,6 +112,9 @@ def main():
         except Exception as e:
             print(f"  [warn] skipping {os.path.basename(path)}: {e}")
             continue
+
+        if log.results:
+            total_samples += log.results.completed_samples or 0
 
         for model_name, usage in (log.stats.model_usage or {}).items():
             inp = usage.input_tokens or 0
@@ -134,7 +138,7 @@ def main():
 
     # Header
     n = len(eval_files)
-    print(f"\nToken Usage Report — {target} ({n} log file{'s' if n != 1 else ''})")
+    print(f"\nToken Usage Report — {target} ({n} log file{'s' if n != 1 else ''}, {total_samples:,} sample{'s' if total_samples != 1 else ''} run)")
     if all_starts and all_ends:
         wall_start = min(all_starts)
         wall_end = max(all_ends)

@@ -11,7 +11,8 @@
       "PowerShell(uv sync *)",
       "Bash(git *)",
       "Bash(python3 *)",
-      "Bash(python *)"
+      "Bash(python *)",
+      "WebFetch(domain:platform.openai.com)"
     ]
   }
 }
