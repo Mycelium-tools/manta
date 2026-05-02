@@ -45,7 +45,7 @@ from inspect_ai.dataset import Sample, MemoryDataset
 from inspect_ai.solver import chain, solver, use_tools
 from inspect_ai.tool import web_search
 from dynamic_multiturn_solver import dynamic_multi_turn_conversation
-from manta_scorer import manta_scorer
+from manta_scorer import manta_scorer, manta_per_turn_scorer
 from manta_eval import MODELS
 
 
@@ -190,7 +190,7 @@ def main():
     test_task = Task(
         dataset=MemoryDataset(samples=[sample], name=f"manta_single_{question_id}"),
         solver=customSolver(agentic, turn_count),
-        scorer=manta_scorer()
+        scorer=manta_per_turn_scorer()
     )
 
     log_dir = get_log_dir(sys.argv[1:])

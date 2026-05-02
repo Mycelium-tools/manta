@@ -3,13 +3,13 @@ MANTA Inspect AI Evaluation
 =============================
 Dynamic multi-turn adversarial evaluation of animal welfare alignment.
 All questions run as 5-turn conversations (turn_count=5):
-  Turn 1: implicit-framing scenario; model answers (AWMS scored on this response)
+  Turn 1: implicit-framing scenario; model answers
   Turn 2: explicit anchor — welfare made central, no adversarial pressure
-  Turns 3–5: 3 distinct pressure turns explicitly contesting welfare (AWVS scored on this slice)
+  Turns 3–5: 3 distinct pressure turns explicitly contesting welfare
 
 Scoring (manta_scorer.py):
-- AWVS (Animal Welfare Value Stability, Rest Component 4) — headline metric, continuous 0.0-1.0
-- AWMS (Animal Welfare Moral Sensitivity, Rest Component 1) — secondary metric, snapped to {0.0, 0.5, 1.0}
+- AWVS (Animal Welfare Value Stability) — headline metric, scored per-turn 0.0-1.0; benchmark = mean of turns 3-5
+- AWMS (Animal Welfare Moral Sensitivity) — secondary metric, continuous 0.0-1.0 on Turn 1 only
 - AWMS does NOT gate AWVS; both are computed independently so the recognition-vs-resilience
   correlation can be measured (see analysis/correlation_awms_awvs.py)
 
@@ -34,7 +34,7 @@ from inspect_ai.dataset import Sample, MemoryDataset
 from inspect_ai.solver import use_tools
 from inspect_ai.tool import web_search
 from dynamic_multiturn_solver import dynamic_multi_turn_conversation, clear_followup_store
-from manta_scorer import manta_scorer
+from manta_scorer import manta_scorer, manta_per_turn_scorer
 import json
 import ast
 import os
@@ -89,19 +89,25 @@ def get_log_dir(args=None):
                     full_run_label = ""
                 break
 
-    # Detect --sample-range START END (for log routing when --full-run not specified).
+    # Detect --sample-range START END [LABEL] (for log routing when --full-run not specified).
     # Falls back to module-level globals since sys.argv may already be stripped by call time.
     sample_range_label = None
     if full_run_label is None:
         if args:
             for i, arg in enumerate(args):
                 if arg == "--sample-range" and i + 2 < len(args):
-                    sample_range_label = f"sample_range_{args[i + 1]}_{args[i + 2]}"
+                    base = f"sample_range_{args[i + 1]}_{args[i + 2]}"
+                    if i + 3 < len(args) and not args[i + 3].startswith("--"):
+                        base = f"{base}_{args[i + 3]}"
+                    sample_range_label = base
                     break
         if sample_range_label is None:
             try:
                 if SAMPLE_START is not None:
-                    sample_range_label = f"sample_range_{SAMPLE_START}_{SAMPLE_END}"
+                    base = f"sample_range_{SAMPLE_START}_{SAMPLE_END}"
+                    if SAMPLE_LABEL is not None:
+                        base = f"{base}_{SAMPLE_LABEL}"
+                    sample_range_label = base
             except NameError:
                 pass
 
@@ -128,12 +134,15 @@ def get_log_dir(args=None):
     return log_dir
 
 
-def get_sample_range(args: list[str]) -> tuple[int | None, int | None]:
-    """Parse --sample-range START END from argv. Returns (start, end) or (None, None)."""
+def get_sample_range(args: list[str]) -> tuple[int | None, int | None, str | None]:
+    """Parse --sample-range START END [LABEL] from argv. Returns (start, end, label)."""
     for i, arg in enumerate(args):
         if arg == "--sample-range" and i + 2 < len(args):
-            return int(args[i + 1]), int(args[i + 2])
-    return None, None
+            label = None
+            if i + 3 < len(args) and not args[i + 3].startswith("--"):
+                label = args[i + 3]
+            return int(args[i + 1]), int(args[i + 2]), label
+    return None, None, None
 
 
 def parse_tags(tags_val) -> list[str]:
@@ -151,13 +160,14 @@ def parse_tags(tags_val) -> list[str]:
         return []
 
 
-SAMPLE_START, SAMPLE_END = get_sample_range(sys.argv[1:])
+SAMPLE_START, SAMPLE_END, SAMPLE_LABEL = get_sample_range(sys.argv[1:])
 
-# Strip --sample-range and its two values from sys.argv so inspect's CLI doesn't see unknown flags
+# Strip --sample-range and its args from sys.argv so inspect's CLI doesn't see unknown flags
 _i = 1
 while _i < len(sys.argv):
     if sys.argv[_i] == "--sample-range" and _i + 2 < len(sys.argv):
-        del sys.argv[_i:_i + 3]
+        n = 4 if (_i + 3 < len(sys.argv) and not sys.argv[_i + 3].startswith("--")) else 3
+        del sys.argv[_i:_i + n]
         break
     _i += 1
 
@@ -281,7 +291,7 @@ def manta_test5():
         solver=[
             dynamic_multi_turn_conversation(turn_count=5, epoch_store=False)
         ],
-        scorer=manta_scorer()
+        scorer=manta_per_turn_scorer()
     )
 
 
@@ -297,7 +307,7 @@ def manta_5turn():
         solver=[
             dynamic_multi_turn_conversation(turn_count=5, epoch_store=False)
         ],
-        scorer=manta_scorer()
+        scorer=manta_per_turn_scorer()
     )
 
 
@@ -377,20 +387,29 @@ def manta_agentic_5turn():
             use_tools([web_search()]),
             dynamic_multi_turn_conversation(turn_count=5, epoch_store=False)
         ],
-        scorer=manta_scorer()
+        scorer=manta_per_turn_scorer()
     )
 
 
 MODELS = [
-    "google/gemini-3.1-flash-lite-preview",
     "anthropic/claude-opus-4-7",
-    "anthropic/claude-sonnet-4-6",
     "openai/gpt-5.5",
-    "grok/grok-4.3",
-    "openai-api/deepseek/deepseek-v4-flash",
-    "mistral/mistral-small-2603",
-    "openrouter/meta-llama/llama-3.3-70b-instruct"
+    "google/gemini-3.1-flash-lite-preview",
+    # "grok/grok-4.3",
+    # "openai-api/deepseek/deepseek-v4-flash",
+    # "mistral/mistral-small-2603",
+    # "openrouter/meta-llama/llama-3.3-70b-instruct"
 ]
+# MODELS = [
+#     "google/gemini-3.1-flash-lite-preview",
+#     "anthropic/claude-opus-4-7",
+#     "anthropic/claude-sonnet-4-6",
+#     "openai/gpt-5.5",
+#     "grok/grok-4.3",
+#     "openai-api/deepseek/deepseek-v4-flash",
+#     "mistral/mistral-small-2603",
+#     "openrouter/meta-llama/llama-3.3-70b-instruct"
+# ]
 
 
 def validate_environment(models: list[str]) -> None:
