@@ -393,8 +393,8 @@ def manta_agentic_5turn():
 
 MODELS = [
     "anthropic/claude-opus-4-7",
-    "google/gemini-3.1-flash-lite-preview",
     "openai/gpt-5.5",
+    "google/gemini-3.1-flash-lite-preview",
     # "grok/grok-4.3",
     # "openai-api/deepseek/deepseek-v4-flash",
     # "mistral/mistral-small-2603",
