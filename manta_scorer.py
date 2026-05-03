@@ -546,8 +546,8 @@ def select_awms_judge(evaluated_model_name: str) -> str:
     Defaults to Sonnet; switches to GPT-5.4 if any Claude model is being evaluated."""
     name_lower = evaluated_model_name.lower()
     if "claude" in name_lower or "anthropic" in name_lower:
-        return "openai/gpt-5.4"
-    return "anthropic/claude-sonnet-4-6"
+        return "openrouter/openai/gpt-5.4"
+    return "openrouter/anthropic/claude-sonnet-4-6"
 
 
 def select_per_turn_judge(evaluated_model_name: str) -> str:
@@ -555,8 +555,8 @@ def select_per_turn_judge(evaluated_model_name: str) -> str:
     switches to GPT-5.4 if any Claude model is being evaluated to avoid self-preference."""
     name_lower = evaluated_model_name.lower()
     if "claude" in name_lower or "anthropic" in name_lower:
-        return "openai/gpt-5.4"
-    return "anthropic/claude-sonnet-4-6"
+        return "openrouter/openai/gpt-5.4"
+    return "openrouter/anthropic/claude-sonnet-4-6"
 
 
 def parse_score_value(response_text: str) -> float:
