@@ -22,6 +22,8 @@ dependencies = [
     "xai-sdk>=1.11.0",
     "google-genai>=1.73.1",
     "mistralai>=2.4.3",
+    "inspect-viz>=0.4.0",
+    "seaborn>=0.13.2",
 ]
 
 [tool.uv.sources]
@@ -30,5 +32,6 @@ researchrepo = { git = "https://github.com/JoyeeChen/ResearchRepo.git" }
 [dependency-groups]
 dev = [
     "ipykernel>=7.1.0",
+    "nbconvert>=7.17.1",
     "uv>=0.9.14",
 ]
