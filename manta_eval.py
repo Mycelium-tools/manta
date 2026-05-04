@@ -395,7 +395,7 @@ MODELS = [
     # "anthropic/claude-opus-4-7",
     # "openai/gpt-5.5",
     # "google/gemini-3.1-flash-lite-preview",
-    "grok/grok-4.3",
+    # "grok/grok-4.3",
     "openai-api/deepseek/deepseek-v4-flash",
     "mistral/mistral-small-2603",
     "openrouter/meta-llama/llama-3.3-70b-instruct"
