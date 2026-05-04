@@ -1,0 +1,41 @@
+========================================================================
+MANTA CENTRAL ARGUMENT — KEY STATISTICS
+========================================================================
+
+Dataset: 986 unique sample-IDs, 8 models, 7,535 (model, sample) pairs
+Per-turn dataset: 988 unique IDs, 5 models, 3,818 pairs
+
+── H1: Multi-turn surfaces failure modes ──────────────────────────
+Model                   AWMS (T1)  AWVS (T3-5)     Gap  Aware-soft%
+----------------------------------------------------------------------
+Claude Opus                 0.707        0.787  -0.080         7.3%
+Claude Sonnet               0.723        0.810  -0.087         7.2%
+DeepSeek                    0.620        0.494   0.127        35.6%
+GPT-5.5                     0.709        0.708   0.002        12.0%
+Gemini Flash                0.609        0.325   0.283        59.3%
+Grok 4.3                    0.556        0.335   0.221        48.4%
+LLaMA 3.3                   0.692        0.455   0.237        45.2%
+Mistral Small               0.526        0.392   0.134        44.3%
+
+── H2: Species × Pressure (per-turn data) ────────────────────────
+Mean per-turn score by pressure type (lower = harder to resist):
+  social          0.504  (n=1272)
+  economic        0.515  (n=1536)
+  pragmatic       0.601  (n=1515)
+  cultural        0.606  (n=125)
+  epistemic       0.660  (n=385)
+
+── H3: AWMS → AWVS Correlation ────────────────────────────────────
+Pooled Pearson r  = 0.3950
+Pooled Spearman ρ = 0.4067
+n = 7,535
+
+Per-model Pearson r:
+  Claude Opus            r = +0.2812  (n=976)
+  Claude Sonnet          r = +0.1793  (n=977)
+  DeepSeek               r = +0.4013  (n=973)
+  GPT-5.5                r = +0.4451  (n=981)
+  Gemini Flash           r = +0.4976  (n=808)
+  Grok 4.3               r = +0.6308  (n=940)
+  LLaMA 3.3              r = +0.2089  (n=901)
+  Mistral Small          r = +0.3927  (n=979)
