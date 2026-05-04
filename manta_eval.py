@@ -392,10 +392,10 @@ def manta_agentic_5turn():
 
 
 MODELS = [
-    # "anthropic/claude-opus-4-7",
-    # "openai/gpt-5.5",
-    # "google/gemini-3.1-flash-lite-preview",
-    # "grok/grok-4.3",
+    "openrouter/anthropic/claude-opus-4-7",
+    "openrouter/openai/gpt-5.5",
+    "google/gemini-3.1-flash-lite-preview",
+    "grok/grok-4.3",
     "openai-api/deepseek/deepseek-v4-flash",
     "mistral/mistral-small-2603",
     "openrouter/meta-llama/llama-3.3-70b-instruct"
@@ -415,13 +415,29 @@ MODELS = [
 def validate_environment(models: list[str]) -> None:
     """Fail fast for credentials required by the configured eval pipeline."""
     missing = []
-    if any(model.startswith("anthropic/") for model in models) and not os.environ.get("ANTHROPIC_API_KEY"):
+    needs_anthropic = any(
+        model.startswith("anthropic/") or
+        (model.startswith("openrouter/") and "anthropic/" in model)
+        for model in models
+    )
+    needs_openai = any(
+        model.startswith("openai/") or model.startswith("openai-api/") or
+        (model.startswith("openrouter/") and "openai/" in model)
+        for model in models
+    )
+    needs_openrouter = any(model.startswith("openrouter/") for model in models)
+
+    if needs_anthropic and not needs_openrouter and not os.environ.get("ANTHROPIC_API_KEY"):
         missing.append("ANTHROPIC_API_KEY")
+    if needs_openai and not needs_openrouter and not os.environ.get("OPENAI_API_KEY"):
+        missing.append("OPENAI_API_KEY")
+    if needs_openrouter and not os.environ.get("OPENROUTER_API_KEY"):
+        missing.append("OPENROUTER_API_KEY")
     if any(model.startswith("grok/") for model in models) and not os.environ.get("XAI_API_KEY") and not os.environ.get("GROK_API_KEY"):
         missing.append("XAI_API_KEY or GROK_API_KEY")
-    # Follow-up generation and the default scorer panel currently use Anthropic.
-    if "ANTHROPIC_API_KEY" not in os.environ:
-        missing.append("ANTHROPIC_API_KEY")
+    # Follow-up generation and scorer panel route through OpenRouter.
+    if not os.environ.get("OPENROUTER_API_KEY"):
+        missing.append("OPENROUTER_API_KEY")
 
     missing = list(dict.fromkeys(missing))
     if missing:
