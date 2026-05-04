@@ -41,8 +41,8 @@ except ImportError:
     _scipy_stats = None
 
 
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ANALYSIS_DIR = os.path.join(REPO_ROOT, "analysis")
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ANALYSIS_DIR = os.path.join(REPO_ROOT, "qualitative_analyses", "central_argument_analysis")
 FIGURES_DIR = os.path.join(ANALYSIS_DIR, "figures")
 CSV_PATH = os.path.join(ANALYSIS_DIR, "awms_awvs_per_sample.csv")
 
