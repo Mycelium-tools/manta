@@ -12,10 +12,12 @@ Data sources
   manta_per_turn_scorer runs : per-turn scores keyed '1'–'5', enabling pressure attribution
 
 Outputs (all written to analysis/figures/):
-  h1a_awms_vs_awvs_bars.png      — mean AWMS vs AWVS per model
-  h1b_score_trajectory.png       — mean score by turn per model
-  h1c_aware_but_soft.png         — quadrant breakdown per model
+  h1a_awms_vs_awvs_bars.png      — mean AWMS vs AWVS per model (bulk scorer)
+  h1b_score_trajectory.png       — mean score by turn per model (T1–T5)
+  h1c_aware_but_soft.png         — quadrant breakdown per model (bulk scorer)
+  h1d_5turn_3turn_bars.png       — 5-turn mean vs pressured-turn mean per model
   h2_species_pressure_heatmap.png — species × pressure interaction
+  h2b_pressure_type_bars.png     — mean score by pressure type
   h3a_awms_awvs_scatter.png      — pooled AWMS vs AWVS scatter
   h3b_correlation_by_model.png   — per-model Pearson r bar chart
   summary.txt                    — key statistics
@@ -53,16 +55,27 @@ MANTA_SCORER_DIRS = [
 ]
 
 # Per-turn run directories (manta_per_turn_scorer — per-turn scores)
+# Full 7-model coverage across samples 0–1090
 PER_TURN_DIRS = [
+    # Opus, GPT-5.5, Gemini — samples 0–500 and 501–989
     "logs/Allen_May2026/sample_range_0_500_per_turn_big3_2026-05-02_174537",
     "logs/Allen_May2026/sample_range_501_989_per_turn_big3_2026-05-02_215749",
+    # Grok — samples 0–500 and 500–990
     "logs/Allen_May2026/sample_range_0_500_per_turn_other4_2026-05-03_020440",
+    "logs/Allen_May2026/sample_range_500_990_grokv2_2026-05-03_125850",
+    # DeepSeek, Mistral, LLaMA — samples 0–500 and 500–990
+    "logs/Allen_May2026/sample_range_0_500_per_turn_deepMistralLlama_2026-05-03_161028",
+    "logs/Allen_May2026/sample_range_500_990_per_turn_deepMistralLlama_2026-05-03_195936",
+    # All 7 models — samples 990–1090 (new questions)
+    "logs/Allen_May2026/sample_range_990_1090_per_turn_all_models_2026-05-04_135307",
 ]
 
 MODEL_LABELS = {
     "anthropic/claude-opus-4-7":                       "Claude Opus",
+    "openrouter/anthropic/claude-opus-4-7":            "Claude Opus",   # openrouter alias
     "anthropic/claude-sonnet-4-6":                     "Claude Sonnet",
     "openai/gpt-5.5":                                  "GPT-5.5",
+    "openrouter/openai/gpt-5.5":                       "GPT-5.5",       # openrouter alias
     "grok/grok-4.3":                                   "Grok 4.3",
     "google/gemini-3.1-flash-lite-preview":            "Gemini Flash",
     "openai-api/deepseek/deepseek-v4-flash":           "DeepSeek",
@@ -191,24 +204,27 @@ def load_per_turn(dirs: list[str]) -> pd.DataFrame:
                     "3turn_mean": meta.get("3turn_mean"),
                     "5turn_mean": meta.get("5turn_mean"),
                     "3turn_slope": meta.get("3turn_slope"),
+                    "5turn_slope": meta.get("5turn_slope"),
+                    "3turn_variance": meta.get("3turn_variance"),
+                    "5turn_variance": meta.get("5turn_variance"),
                 }
                 for t in range(1, 6):
                     row[f"t{t}"] = float(pts.get(str(t), float("nan")))
                 rows.append(row)
     df = pd.DataFrame(rows)
-    print(f"[per_turn] Loaded {len(df)} samples across {df['model'].nunique()} models")
+    print(f"[per_turn] Loaded {len(df)} samples across {df['label'].nunique()} models")
     return df
 
 
 # ── Chart functions ────────────────────────────────────────────────────────────
 
-def plot_h1a_awms_vs_awvs_bars(df: pd.DataFrame) -> None:
-    """H1a: Grouped bar — mean AWMS vs mean AWVS per model."""
-    stats = df.groupby("label").agg(
+def plot_h1a_awms_vs_awvs_bars(pt_df: pd.DataFrame) -> None:
+    """H1a: Grouped bar — mean AWMS vs mean AWVS (3-turn mean, T3–5) per model."""
+    stats = pt_df.groupby("label").agg(
         awms_mean=("awms", "mean"),
         awms_sem=("awms", lambda x: x.sem()),
-        awvs_mean=("awvs", "mean"),
-        awvs_sem=("awvs", lambda x: x.sem()),
+        awvs_mean=("3turn_mean", "mean"),
+        awvs_sem=("3turn_mean", lambda x: x.sem()),
     ).reset_index()
     stats = stats.sort_values("awvs_mean")
 
@@ -263,11 +279,17 @@ def plot_h1b_score_trajectory(pt_df: pd.DataFrame) -> None:
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
 
-    # Left: per model
+    # Left: per model with ±1 SEM shading
     for model, color in zip(models, palette):
         sub = pt_df[pt_df["label"] == model]
-        means = [sub[c].dropna().mean() for c in turn_cols]
-        ax1.plot(range(1, 6), means, marker="o", label=model, color=color, linewidth=1.8)
+        means = np.array([sub[c].dropna().mean() for c in turn_cols])
+        sems = np.array([
+            sub[c].dropna().std() / np.sqrt(sub[c].dropna().count()) if sub[c].dropna().count() > 1 else 0.0
+            for c in turn_cols
+        ])
+        xs = np.array(range(1, 6))
+        ax1.fill_between(xs, means - sems, means + sems, alpha=0.10, color=color)
+        ax1.plot(xs, means, marker="o", label=model, color=color, linewidth=1.8)
 
     ax1.axvspan(2.5, 5.5, alpha=0.07, color="red", label="Pressure zone")
     ax1.set_xticks(range(1, 6))
@@ -314,7 +336,7 @@ def plot_h1b_score_trajectory(pt_df: pd.DataFrame) -> None:
     print(f"Wrote {out}")
 
 
-def plot_h1c_aware_but_soft(df: pd.DataFrame) -> None:
+def plot_h1c_aware_but_soft(pt_df: pd.DataFrame) -> None:
     """H1c: Quadrant breakdown — what single-turn misses."""
     def quadrant(awms, awvs):
         hi_awms = awms >= 0.5
@@ -327,14 +349,14 @@ def plot_h1c_aware_but_soft(df: pd.DataFrame) -> None:
             return "misses cues / defends"
         return "misses cues / folds"
 
-    df = df.copy()
-    df["quadrant"] = df.apply(lambda r: quadrant(r["awms"], r["awvs"]), axis=1)
+    df = pt_df.copy()
+    df["quadrant"] = df.apply(lambda r: quadrant(r["awms"], r["3turn_mean"]), axis=1)
     order = ["aware + robust", "aware but soft\n(single-turn miss)", "misses cues / defends", "misses cues / folds"]
     colors = {"aware + robust": "#4CAF50", "aware but soft\n(single-turn miss)": "#FF9800",
               "misses cues / defends": "#2196F3", "misses cues / folds": "#F44336"}
 
     # Per-model stacked bar (proportion)
-    models = df.groupby("label")["awvs"].mean().sort_values().index.tolist()
+    models = df.groupby("label")["3turn_mean"].mean().sort_values().index.tolist()
     data = {}
     for q in order:
         vals = []
@@ -356,6 +378,7 @@ def plot_h1c_aware_but_soft(df: pd.DataFrame) -> None:
 
     ax.set_ylabel("% of Samples")
     ax.set_ylim(0, 102)
+    ax.set_xticks(range(len(models)))
     ax.set_xticklabels(models, rotation=20, ha="right", fontsize=9)
     ax.set_title(
         'H1 — "Aware But Soft": Samples Single-Turn Would Pass But Multi-Turn Fails\n'
@@ -423,7 +446,7 @@ def plot_h2_species_pressure_heatmap(pt_df: pd.DataFrame) -> None:
     ax.set_ylabel("Animal Species", fontsize=11)
     ax.set_title(
         "H2 — Species × Pressure Interaction Matrix\n"
-        "Mean AWVS score when that pressure type was applied to questions about this animal\n"
+        "Mean per-turn welfare score when that pressure type was applied to questions about this animal\n"
         "(pooled across all models; red = low welfare robustness, green = high)",
         fontsize=10
     )
@@ -436,7 +459,7 @@ def plot_h2_species_pressure_heatmap(pt_df: pd.DataFrame) -> None:
                 ax.text(j, i, f"{v:.2f}", ha="center", va="center",
                         fontsize=7, color="black" if 0.3 < v < 0.8 else "white")
 
-    plt.colorbar(im, ax=ax, label="Mean per-turn score (0–1)", shrink=0.7)
+    plt.colorbar(im, ax=ax, label="Mean per-turn welfare score (0–1)", shrink=0.7)
     plt.tight_layout()
     out = os.path.join(FIGS, "h2_species_pressure_heatmap.png")
     plt.savefig(out, dpi=140)
@@ -444,30 +467,30 @@ def plot_h2_species_pressure_heatmap(pt_df: pd.DataFrame) -> None:
     print(f"Wrote {out}")
 
 
-def plot_h3a_awms_awvs_scatter(df: pd.DataFrame) -> None:
-    """H3a: Pooled scatter AWMS vs AWVS with quadrant annotations."""
+def plot_h3a_awms_awvs_scatter(pt_df: pd.DataFrame) -> None:
+    """H3a: Pooled scatter AWMS vs AWVS (5-turn mean) with quadrant annotations."""
     fig, ax = plt.subplots(figsize=(8, 6))
-    models = sorted(df["label"].unique())
+    models = sorted(pt_df["label"].unique())
     palette = plt.cm.tab10(np.linspace(0, 0.9, len(models)))
     rng = np.random.default_rng(42)
 
     for model, color in zip(models, palette):
-        sub = df[df["label"] == model]
+        sub = pt_df[pt_df["label"] == model]
         jitter = rng.normal(0, 0.015, size=len(sub))
-        ax.scatter(sub["awms"] + jitter, sub["awvs"], label=model, alpha=0.55, s=22, color=color)
+        ax.scatter(sub["awms"] + jitter, sub["5turn_mean"], label=model, alpha=0.55, s=22, color=color)
 
     ax.axvline(0.5, color="grey", linestyle="--", linewidth=0.8)
     ax.axhline(0.5, color="grey", linestyle="--", linewidth=0.8)
     ax.set_xlabel("AWMS — Animal Welfare Moral Sensitivity (Turn 1)", fontsize=10)
-    ax.set_ylabel("AWVS — Animal Welfare Value Stability (Turns 3–5)", fontsize=10)
+    ax.set_ylabel("AWVS — Animal Welfare Value Stability (5-turn mean, T1–T5)", fontsize=10)
     ax.set_xlim(-0.1, 1.1)
     ax.set_ylim(-0.05, 1.05)
 
-    q_tr = ((df["awms"] >= 0.5) & (df["awvs"] >= 0.5)).sum()
-    q_tl = ((df["awms"] < 0.5) & (df["awvs"] >= 0.5)).sum()
-    q_br = ((df["awms"] >= 0.5) & (df["awvs"] < 0.5)).sum()
-    q_bl = ((df["awms"] < 0.5) & (df["awvs"] < 0.5)).sum()
-    n = len(df)
+    q_tr = ((pt_df["awms"] >= 0.5) & (pt_df["5turn_mean"] >= 0.5)).sum()
+    q_tl = ((pt_df["awms"] < 0.5) & (pt_df["5turn_mean"] >= 0.5)).sum()
+    q_br = ((pt_df["awms"] >= 0.5) & (pt_df["5turn_mean"] < 0.5)).sum()
+    q_bl = ((pt_df["awms"] < 0.5) & (pt_df["5turn_mean"] < 0.5)).sum()
+    n = len(pt_df)
     ax.text(0.82, 0.96, f"aware+robust\n{q_tr/n*100:.0f}%", ha="center", fontsize=8.5, color="darkgreen",
             transform=ax.transAxes)
     ax.text(0.18, 0.96, f"misses/defends\n{q_tl/n*100:.0f}%", ha="center", fontsize=8.5, color="#1565C0",
@@ -478,13 +501,14 @@ def plot_h3a_awms_awvs_scatter(df: pd.DataFrame) -> None:
             transform=ax.transAxes)
 
     # Pooled r
-    x_all = df["awms"].values
-    y_all = df["awvs"].values
+    valid = pt_df.dropna(subset=["awms", "5turn_mean"])
+    x_all = valid["awms"].values
+    y_all = valid["5turn_mean"].values
     r = _pearson(x_all, y_all)
     rho = _spearman(x_all, y_all)
     ax.set_title(
         f"H3 — AWMS × AWVS: Does moral recognition predict resilience?\n"
-        f"Pooled Pearson r = {r:.3f}, Spearman ρ = {rho:.3f}  (n = {n:,})",
+        f"Pooled Pearson r = {r:.3f}, Spearman ρ = {rho:.3f}  (n = {n:,}, 7 models, per-turn scorer)",
         fontsize=10
     )
     ax.legend(loc="center right", fontsize=7.5, framealpha=0.85, markerscale=1.5)
@@ -495,14 +519,15 @@ def plot_h3a_awms_awvs_scatter(df: pd.DataFrame) -> None:
     print(f"Wrote {out}")
 
 
-def plot_h3b_correlation_by_model(df: pd.DataFrame) -> None:
-    """H3b: Per-model Pearson r (AWMS → AWVS) bar chart."""
+def plot_h3b_correlation_by_model(pt_df: pd.DataFrame) -> None:
+    """H3b: Per-model Pearson r (AWMS → per-turn AWVS 5-turn mean) bar chart."""
     stats = []
-    for label, sub in df.groupby("label"):
-        x = sub["awms"].values
-        y = sub["awvs"].values
+    for label, sub in pt_df.groupby("label"):
+        sub_v = sub.dropna(subset=["awms", "5turn_mean"])
+        x = sub_v["awms"].values
+        y = sub_v["5turn_mean"].values
         r = _pearson(x, y)
-        stats.append({"label": label, "r": r, "n": len(sub)})
+        stats.append({"label": label, "r": r, "n": len(sub_v)})
     stats_df = pd.DataFrame(stats).sort_values("r")
 
     fig, ax = plt.subplots(figsize=(9, 4))
@@ -517,16 +542,121 @@ def plot_h3b_correlation_by_model(df: pd.DataFrame) -> None:
         ax.text(x_pos, bar.get_y() + bar.get_height() / 2,
                 f'r={row["r"]:.2f}, n={row["n"]:,}', va="center", ha=ha, fontsize=8)
 
-    ax.set_xlabel("Pearson r (AWMS → AWVS)", fontsize=10)
+    ax.set_xlabel("Pearson r (AWMS → per-turn AWVS, 5-turn mean)", fontsize=10)
     ax.set_title(
         "H3 — Does Recognising Welfare (AWMS) Predict Defending It (AWVS)?\n"
-        "Per-Model Pearson r Correlation",
+        "Per-Model Pearson r — per-turn scorer, 7 models, 5-turn mean",
         fontsize=10
     )
     ax.legend(fontsize=9)
     ax.set_xlim(-0.6, 0.8)
     plt.tight_layout()
     out = os.path.join(FIGS, "h3b_correlation_by_model.png")
+    plt.savefig(out, dpi=140)
+    plt.close(fig)
+    print(f"Wrote {out}")
+
+
+def plot_h1d_5turn_3turn_bars(pt_df: pd.DataFrame) -> None:
+    """H1d: Grouped bars — 5turn_mean vs 3turn_mean (pressured turns) per model."""
+    sub = pt_df.dropna(subset=["5turn_mean", "3turn_mean"])
+    stats = sub.groupby("label").agg(
+        mean_5turn=("5turn_mean", "mean"),
+        sem_5turn=("5turn_mean", lambda x: x.sem()),
+        mean_3turn=("3turn_mean", "mean"),
+        sem_3turn=("3turn_mean", lambda x: x.sem()),
+    ).reset_index()
+    stats = stats.sort_values("mean_3turn", ascending=False)
+
+    n = len(stats)
+    x = np.arange(n)
+    w = 0.35
+
+    fig, ax = plt.subplots(figsize=(11, 5))
+    ax.bar(x - w / 2, stats["mean_5turn"], w,
+           yerr=stats["sem_5turn"], capsize=4,
+           label="5-turn mean (all turns T1–T5)", color="#5C6BC0", alpha=0.85)
+    ax.bar(x + w / 2, stats["mean_3turn"], w,
+           yerr=stats["sem_3turn"], capsize=4,
+           label="3-turn mean (pressured turns T3–T5 only)", color="#EF5350", alpha=0.85)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(stats["label"], rotation=20, ha="right", fontsize=9)
+    ax.set_ylabel("Mean Score (0–1)")
+    ax.set_ylim(0, 1.05)
+    ax.set_title(
+        "H1 — Full Conversation (5-turn) vs Pressure Phase Only (T3–T5) per Model\n"
+        "Sorted by pressure-phase score (right bars); lower = more vulnerable under adversarial pressure",
+        fontsize=10
+    )
+    ax.legend(fontsize=9)
+    ax.axhline(0.5, color="grey", linestyle="--", linewidth=0.7, alpha=0.5)
+    plt.tight_layout()
+    out = os.path.join(FIGS, "h1d_5turn_3turn_bars.png")
+    plt.savefig(out, dpi=140)
+    plt.close(fig)
+    print(f"Wrote {out}")
+
+
+def plot_h2b_pressure_type_bars(pt_df: pd.DataFrame) -> None:
+    """H2b: Mean per-turn score by pressure type (T3–T5) with error bars."""
+    records = []
+    for _, row in pt_df.iterrows():
+        pt = row["pressure_types"]
+        if not isinstance(pt, list) or len(pt) < 3:
+            continue
+        for i, pressure in enumerate(pt):
+            turn = i + 3
+            score = row.get(f"t{turn}")
+            if score is not None and not (isinstance(score, float) and np.isnan(score)):
+                records.append({"pressure": pressure.lower(), "score": float(score)})
+
+    if not records:
+        print("  No pressure records — skipping H2b")
+        return
+
+    press_df = pd.DataFrame(records)
+    stats = press_df.groupby("pressure")["score"].agg(
+        mean="mean",
+        sem=lambda x: x.sem(),
+        count="count",
+    ).reset_index()
+
+    order = [p for p in PRESSURE_ORDER if p in stats["pressure"].values]
+    stats = stats.set_index("pressure").loc[order].reset_index()
+
+    pooled_mean = press_df["score"].mean()
+
+    color_map = {
+        "economic": "#EF5350",
+        "social": "#AB47BC",
+        "pragmatic": "#FF7043",
+        "epistemic": "#42A5F5",
+        "cultural": "#66BB6A",
+    }
+    bar_colors = [color_map.get(p, "#90A4AE") for p in stats["pressure"]]
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.bar(stats["pressure"].str.capitalize(), stats["mean"],
+           yerr=stats["sem"], capsize=5,
+           color=bar_colors, alpha=0.85)
+    ax.axhline(pooled_mean, color="grey", linestyle="--", linewidth=1,
+               label=f"Pooled mean = {pooled_mean:.3f}")
+
+    for i, row in stats.iterrows():
+        ax.text(i, row["mean"] + row["sem"] + 0.015,
+                f'n={int(row["count"]):,}', ha="center", fontsize=8, color="#555")
+
+    ax.set_ylabel("Mean Per-Turn Score (0–1)")
+    ax.set_ylim(0, 1.05)
+    ax.set_title(
+        "H2 — Which Pressure Types Best Erode Welfare Reasoning?\n"
+        "Mean score at T3–T5 when each pressure type was applied (lower = more effective pressure)",
+        fontsize=10
+    )
+    ax.legend(fontsize=9)
+    plt.tight_layout()
+    out = os.path.join(FIGS, "h2b_pressure_type_bars.png")
     plt.savefig(out, dpi=140)
     plt.close(fig)
     print(f"Wrote {out}")
@@ -540,12 +670,24 @@ def write_summary(df: pd.DataFrame, pt_df: pd.DataFrame) -> None:
     lines.append("MANTA CENTRAL ARGUMENT — KEY STATISTICS")
     lines.append("=" * 72)
 
-    lines.append(f"\nDataset: {df['sample_id'].nunique()} unique sample-IDs, "
-                 f"{df['model'].nunique()} models, {len(df):,} (model, sample) pairs")
+    lines.append(f"\nBulk scorer dataset: {df['sample_id'].nunique()} unique sample-IDs, "
+                 f"{df['label'].nunique()} models, {len(df):,} (model, sample) pairs")
     lines.append(f"Per-turn dataset: {pt_df['sample_id'].nunique()} unique IDs, "
-                 f"{pt_df['model'].nunique()} models, {len(pt_df):,} pairs")
+                 f"{pt_df['label'].nunique()} models, {len(pt_df):,} pairs")
 
-    lines.append("\n── H1: Multi-turn surfaces failure modes ──────────────────────────")
+    if not pt_df.empty:
+        lines.append("\n── H1: Per-turn scores by model (PRIMARY analysis) ────────────────")
+        lines.append(f"{'Model':<22} {'AWMS (T1)':>10} {'5turn mean':>11} {'3turn mean':>11} {'Gap':>7} {'n':>6}")
+        lines.append("-" * 75)
+        for label, sub in pt_df.groupby("label"):
+            awms_m = sub["awms"].dropna().mean()
+            mean_5 = sub["5turn_mean"].dropna().mean()
+            mean_3 = sub["3turn_mean"].dropna().mean()
+            gap = awms_m - mean_3
+            n = len(sub)
+            lines.append(f"{label:<22} {awms_m:>10.3f} {mean_5:>11.3f} {mean_3:>11.3f} {gap:>7.3f} {n:>6,}")
+
+    lines.append("\n── H1: Multi-turn surfaces failure modes (supplementary — bulk scorer) ──")
     lines.append(f"{'Model':<22} {'AWMS (T1)':>10} {'AWVS (T3-5)':>12} {'Gap':>7} {'Aware-soft%':>12}")
     lines.append("-" * 70)
     for label, sub in df.groupby("label"):
@@ -555,8 +697,39 @@ def write_summary(df: pd.DataFrame, pt_df: pd.DataFrame) -> None:
         aware_soft = ((sub["awms"] >= 0.5) & (sub["awvs"] < 0.5)).mean() * 100
         lines.append(f"{label:<22} {awms_m:>10.3f} {awvs_m:>12.3f} {gap:>7.3f} {aware_soft:>11.1f}%")
 
-    lines.append("\n── H2: Species × Pressure (per-turn data) ────────────────────────")
+    lines.append("\n── H2: Pressure type effectiveness (per-turn data, T3–T5) ───────────")
     if not pt_df.empty:
+        all_pressure_records = []
+        for _, row in pt_df.iterrows():
+            pt = row["pressure_types"]
+            if isinstance(pt, list) and len(pt) >= 3:
+                for i, pressure in enumerate(pt):
+                    t = i + 3
+                    score = row.get(f"t{t}")
+                    if score is not None and not (isinstance(score, float) and np.isnan(score)):
+                        all_pressure_records.append({
+                            "pressure": pressure.lower(), "score": float(score),
+                            "label": row["label"],
+                        })
+        if all_pressure_records:
+            pdf = pd.DataFrame(all_pressure_records)
+            pooled = pdf.groupby("pressure")["score"].mean().sort_values()
+            lines.append("Pooled mean per-turn score by pressure type (lower = harder to resist):")
+            for ptype, mean_score in pooled.items():
+                n_p = pdf[pdf["pressure"] == ptype]["score"].count()
+                lines.append(f"  {ptype:<15} {mean_score:.3f}  (n={n_p:,})")
+
+            lines.append("\nPer-model mean score by pressure type:")
+            header = f"  {'Model':<22}" + "".join(f" {p[:6]:>8}" for p in PRESSURE_ORDER)
+            lines.append(header)
+            lines.append("  " + "-" * (22 + 8 * len(PRESSURE_ORDER)))
+            for label, lsub in pdf.groupby("label"):
+                row_str = f"  {label:<22}"
+                for p in PRESSURE_ORDER:
+                    vals = lsub[lsub["pressure"] == p]["score"]
+                    row_str += f" {vals.mean():>8.3f}" if len(vals) > 0 else f" {'—':>8}"
+                lines.append(row_str)
+
         species_rows = pt_df[pt_df["species"].notna()]
         if not species_rows.empty:
             records = []
@@ -571,28 +744,25 @@ def write_summary(df: pd.DataFrame, pt_df: pd.DataFrame) -> None:
             if records:
                 hdf = pd.DataFrame(records)
                 top_n = hdf.groupby("pressure")["score"].mean().sort_values()
-                lines.append("Mean per-turn score by pressure type (lower = harder to resist):")
+                lines.append("\nSpecies-restricted mean per-turn score by pressure type:")
                 for ptype, mean_score in top_n.items():
                     n = hdf[hdf["pressure"] == ptype]["score"].count()
-                    lines.append(f"  {ptype:<15} {mean_score:.3f}  (n={n})")
+                    lines.append(f"  {ptype:<15} {mean_score:.3f}  (n={n:,})")
 
-    lines.append("\n── H3: AWMS → AWVS Correlation ────────────────────────────────────")
-    x_all = df["awms"].dropna().values
-    y_all = df["awvs"].dropna().values
-    # Need matching pairs
-    valid = df.dropna(subset=["awms", "awvs"])
+    lines.append("\n── H3: AWMS → AWVS Correlation (per-turn scorer, 5-turn mean) ─────────")
+    valid = pt_df.dropna(subset=["awms", "5turn_mean"])
     x_all = valid["awms"].values
-    y_all = valid["awvs"].values
+    y_all = valid["5turn_mean"].values
     r = _pearson(x_all, y_all)
     rho = _spearman(x_all, y_all)
     lines.append(f"Pooled Pearson r  = {r:.4f}")
     lines.append(f"Pooled Spearman ρ = {rho:.4f}")
-    lines.append(f"n = {len(valid):,}")
+    lines.append(f"n = {len(valid):,}  (7 models, 5-turn mean)")
     lines.append("")
     lines.append("Per-model Pearson r:")
-    for label, sub in df.groupby("label"):
-        sub_valid = sub.dropna(subset=["awms", "awvs"])
-        r_m = _pearson(sub_valid["awms"].values, sub_valid["awvs"].values)
+    for label, sub in pt_df.groupby("label"):
+        sub_valid = sub.dropna(subset=["awms", "5turn_mean"])
+        r_m = _pearson(sub_valid["awms"].values, sub_valid["5turn_mean"].values)
         lines.append(f"  {label:<22} r = {r_m:+.4f}  (n={len(sub_valid):,})")
 
     out = os.path.join(REPO, "qualitative_analyses", "central_argument_analysis", "central_argument_summary.txt")
@@ -616,24 +786,30 @@ def main() -> None:
     print(f"\nGenerating charts → {FIGS}")
 
     print("\n[H1a] AWMS vs AWVS bars …")
-    plot_h1a_awms_vs_awvs_bars(df)
+    plot_h1a_awms_vs_awvs_bars(pt_df)
 
     if not pt_df.empty:
         print("\n[H1b] Score trajectory …")
         plot_h1b_score_trajectory(pt_df)
 
+        print("\n[H1d] 5-turn vs 3-turn mean bars …")
+        plot_h1d_5turn_3turn_bars(pt_df)
+
     print("\n[H1c] Aware-but-soft quadrant …")
-    plot_h1c_aware_but_soft(df)
+    plot_h1c_aware_but_soft(pt_df)
 
     if not pt_df.empty:
         print("\n[H2] Species × pressure heatmap …")
         plot_h2_species_pressure_heatmap(pt_df)
 
+        print("\n[H2b] Pressure type bars …")
+        plot_h2b_pressure_type_bars(pt_df)
+
     print("\n[H3a] AWMS × AWVS scatter …")
-    plot_h3a_awms_awvs_scatter(df)
+    plot_h3a_awms_awvs_scatter(pt_df)
 
     print("\n[H3b] Correlation by model …")
-    plot_h3b_correlation_by_model(df)
+    plot_h3b_correlation_by_model(pt_df)
 
     print("\n[Summary] Writing summary …")
     write_summary(df, pt_df)
