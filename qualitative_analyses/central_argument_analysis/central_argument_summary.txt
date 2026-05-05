@@ -2,10 +2,21 @@
 MANTA CENTRAL ARGUMENT — KEY STATISTICS
 ========================================================================
 
-Dataset: 986 unique sample-IDs, 8 models, 7,535 (model, sample) pairs
-Per-turn dataset: 988 unique IDs, 5 models, 3,818 pairs
+Bulk scorer dataset: 986 unique sample-IDs, 8 models, 7,535 (model, sample) pairs
+Per-turn dataset: 1090 unique IDs, 7 models, 7,623 pairs
 
-── H1: Multi-turn surfaces failure modes ──────────────────────────
+── H1: Per-turn scores by model (PRIMARY analysis) ────────────────
+Model                   AWMS (T1)  5turn mean  3turn mean     Gap      n
+---------------------------------------------------------------------------
+Claude Opus                 0.579       0.747       0.760  -0.180  1,088
+DeepSeek                    0.417       0.552       0.509  -0.092  1,089
+GPT-5.5                     0.504       0.673       0.664  -0.160  1,088
+Gemini Flash                0.401       0.388       0.309   0.093  1,088
+Grok 4.3                    0.371       0.411       0.352   0.018  1,090
+LLaMA 3.3                   0.476       0.474       0.422   0.054  1,090
+Mistral Small               0.365       0.441       0.390  -0.025  1,090
+
+── H1: Multi-turn surfaces failure modes (supplementary — bulk scorer) ──
 Model                   AWMS (T1)  AWVS (T3-5)     Gap  Aware-soft%
 ----------------------------------------------------------------------
 Claude Opus                 0.707        0.787  -0.080         7.3%
@@ -17,25 +28,42 @@ Grok 4.3                    0.556        0.335   0.221        48.4%
 LLaMA 3.3                   0.692        0.455   0.237        45.2%
 Mistral Small               0.526        0.392   0.134        44.3%
 
-── H2: Species × Pressure (per-turn data) ────────────────────────
-Mean per-turn score by pressure type (lower = harder to resist):
-  social          0.504  (n=1272)
-  economic        0.515  (n=1536)
-  pragmatic       0.601  (n=1515)
-  cultural        0.606  (n=125)
-  epistemic       0.660  (n=385)
+── H2: Pressure type effectiveness (per-turn data, T3–T5) ───────────
+Pooled mean per-turn score by pressure type (lower = harder to resist):
+  social          0.434  (n=6,251)
+  economic        0.446  (n=7,182)
+  cultural        0.509  (n=595)
+  pragmatic       0.545  (n=7,266)
+  epistemic       0.598  (n=1,575)
 
-── H3: AWMS → AWVS Correlation ────────────────────────────────────
-Pooled Pearson r  = 0.3950
-Pooled Spearman ρ = 0.4067
-n = 7,535
+Per-model mean score by pressure type:
+  Model                    econom   social   pragma   episte   cultur
+  --------------------------------------------------------------
+  Claude Opus               0.715    0.718    0.824    0.844    0.749
+  DeepSeek                  0.467    0.432    0.573    0.673    0.604
+  GPT-5.5                   0.613    0.587    0.743    0.811    0.764
+  Gemini Flash              0.292    0.282    0.338    0.347    0.323
+  Grok 4.3                  0.323    0.327    0.387    0.439    0.329
+  LLaMA 3.3                 0.370    0.362    0.495    0.570    0.412
+  Mistral Small             0.344    0.332    0.461    0.505    0.382
+
+Species-restricted mean per-turn score by pressure type:
+  social          0.442  (n=2,545)
+  economic        0.457  (n=3,112)
+  cultural        0.517  (n=231)
+  pragmatic       0.552  (n=3,049)
+  epistemic       0.628  (n=798)
+
+── H3: AWMS → AWVS Correlation (per-turn scorer, 5-turn mean) ─────────
+Pooled Pearson r  = 0.6587
+Pooled Spearman ρ = 0.6482
+n = 7,623  (7 models, 5-turn mean)
 
 Per-model Pearson r:
-  Claude Opus            r = +0.2812  (n=976)
-  Claude Sonnet          r = +0.1793  (n=977)
-  DeepSeek               r = +0.4013  (n=973)
-  GPT-5.5                r = +0.4451  (n=981)
-  Gemini Flash           r = +0.4976  (n=808)
-  Grok 4.3               r = +0.6308  (n=940)
-  LLaMA 3.3              r = +0.2089  (n=901)
-  Mistral Small          r = +0.3927  (n=979)
+  Claude Opus            r = +0.6612  (n=1,088)
+  DeepSeek               r = +0.7021  (n=1,089)
+  GPT-5.5                r = +0.7269  (n=1,088)
+  Gemini Flash           r = +0.7459  (n=1,088)
+  Grok 4.3               r = +0.8081  (n=1,090)
+  LLaMA 3.3              r = +0.6317  (n=1,090)
+  Mistral Small          r = +0.6167  (n=1,090)
