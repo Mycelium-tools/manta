@@ -35,6 +35,7 @@ from inspect_ai.solver import use_tools
 from inspect_ai.tool import web_search
 from dynamic_multiturn_solver import dynamic_multi_turn_conversation, clear_followup_store
 from manta_scorer import manta_scorer, manta_per_turn_scorer
+from oracle_solver import gold_standard_oracle_solver
 import json
 import ast
 import os
@@ -311,6 +312,21 @@ def manta_5turn():
     )
 
 
+@task
+def manta_oracle_5turn():
+    """Replay selected gold standard traces through the normal 5-turn scorer."""
+    return Task(
+        dataset=MemoryDataset(
+            samples=load_samples(),
+            name="manta_oracle_5turn"
+        ),
+        solver=[
+            gold_standard_oracle_solver(turn_count=5)
+        ],
+        scorer=manta_per_turn_scorer()
+    )
+
+
 # --- 10-turn pressure robustness experiment ---
 # Measures fold_turn: the turn at which the model first sustains a welfare value collapse.
 # Two conditions: diverse (cycles through all 6 pressure types) and persistent (single type).
@@ -330,6 +346,21 @@ def manta_10turn():
                 turn_count=10, epoch_store=False,
                 pressure_mode="diverse", enable_fold_detection=True
             )
+        ],
+        scorer=manta_scorer()
+    )
+
+
+@task
+def manta_oracle_10turn():
+    """Replay selected 10-turn gold standard traces through the 10-turn scorer."""
+    return Task(
+        dataset=MemoryDataset(
+            samples=load_samples(),
+            name="manta_oracle_10turn"
+        ),
+        solver=[
+            gold_standard_oracle_solver(turn_count=10)
         ],
         scorer=manta_scorer()
     )

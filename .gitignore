@@ -3,3 +3,8 @@ __pycache__/
 *.pyc
 *.pyo
 .claude/worktrees/
+dataset/gold_standard_answers/candidates/*.jsonl
+dataset/gold_standard_answers/candidates/*.eval
+dataset/gold_standard_answers/validation/*.json
+logs/gsa_candidate_scoring/
+logs/gsa_validation/
